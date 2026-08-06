@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema administrativo educativo para gestionar clientes, productos y proveedores.">
+  <title>Sistema Administrativo Web</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <section id="loginView" class="login-view" aria-labelledby="loginTitle">
+    <div class="login-card">
+      <div class="login-card__header">
+        <p class="eyebrow">Acceso administrativo</p>
+        <h2 id="loginTitle">Iniciar sesión</h2>
+        <p>Ingresa las credenciales de demostración para acceder al sistema.</p>
+      </div>
+
+      <form id="loginForm" class="form" novalidate>
+        <div class="form-field">
+          <label for="loginUsuario">Usuario</label>
+          <input
+            id="loginUsuario"
+            name="usuario"
+            type="text"
+            autocomplete="username"
+            required
+            aria-describedby="loginUsuarioError"
+          >
+          <small id="loginUsuarioError" class="field-error" aria-live="polite"></small>
+        </div>
+
+        <div class="form-field">
+          <label for="loginContrasena">Contraseña</label>
+          <input
+            id="loginContrasena"
+            name="contrasena"
+            type="password"
+            autocomplete="current-password"
+            required
+            aria-describedby="loginContrasenaError"
+          >
+          <small id="loginContrasenaError" class="field-error" aria-live="polite"></small>
+        </div>
+
+        <p id="loginMessage" class="form-message" aria-live="polite"></p>
+
+        <button class="button button--primary button--full" type="submit">
+          Iniciar sesión
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <div id="dashboardView" class="dashboard is-hidden">
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <span class="sidebar__brand-mark" aria-hidden="true">SA</span>
+        <div>
+          <strong>Sistema</strong>
+          <span>Administrativo</span>
+        </div>
+      </div>
+
+      <nav aria-label="Navegación principal">
+        <ul class="sidebar__menu">
+          <li>
+            <button class="sidebar__link is-active" type="button" data-section="inicio">
+              Inicio
+            </button>
+          </li>
+          <li>
+            <button class="sidebar__link" type="button" data-section="clientes">
+              Clientes
+            </button>
+          </li>
+          <li>
+            <button class="sidebar__link" type="button" data-section="productos">
+              Productos
+            </button>
+          </li>
+          <li>
+            <button class="sidebar__link" type="button" data-section="proveedores">
+              Proveedores
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="dashboard__body">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Panel de control</p>
+          <h1>Sistema Administrativo Web</h1>
+        </div>
+        <p class="topbar__user">Usuario: <strong>Administrador</strong></p>
+      </header>
+
+      <main class="main-content">
+        <section id="section-inicio" class="content-section" aria-labelledby="inicioTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Resumen</p>
+              <h2 id="inicioTitle">Dashboard administrativo</h2>
+            </div>
+            <p>Consulta la cantidad de registros guardados en cada módulo.</p>
+          </div>
+
+          <div class="summary-grid">
+            <article class="summary-card">
+              <p>Total de clientes</p>
+              <strong id="totalClientes">0</strong>
+            </article>
+            <article class="summary-card">
+              <p>Total de productos</p>
+              <strong id="totalProductos">0</strong>
+            </article>
+            <article class="summary-card">
+              <p>Total de proveedores</p>
+              <strong id="totalProveedores">0</strong>
+            </article>
+          </div>
+        </section>
+
+        <section id="section-clientes" class="content-section is-hidden" aria-labelledby="clientesTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Administración</p>
+              <h2 id="clientesTitle">Clientes</h2>
+            </div>
+            <p>Registra, consulta, edita o elimina la información de clientes.</p>
+          </div>
+
+          <div class="module-grid">
+            <div class="panel">
+              <h3 id="clienteFormTitle">Registrar cliente</h3>
+              <form id="clienteForm" class="form" novalidate>
+                <div class="form-field">
+                  <label for="clienteNombre">Nombre completo</label>
+                  <input id="clienteNombre" name="nombre" type="text" required aria-describedby="clienteNombreError">
+                  <small id="clienteNombreError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="clienteCorreo">Correo electrónico</label>
+                  <input id="clienteCorreo" name="correo" type="email" required aria-describedby="clienteCorreoError">
+                  <small id="clienteCorreoError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="clienteTelefono">Teléfono</label>
+                  <input id="clienteTelefono" name="telefono" type="tel" required aria-describedby="clienteTelefonoError">
+                  <small id="clienteTelefonoError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <p id="clienteMessage" class="form-message" aria-live="polite"></p>
+
+                <div class="form-actions">
+                  <button id="clienteSubmit" class="button button--primary" type="submit">Registrar cliente</button>
+                  <button id="clienteCancel" class="button button--secondary is-hidden" type="button">Cancelar edición</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel panel--table">
+              <h3>Clientes registrados</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Nombre</th>
+                      <th scope="col">Correo</th>
+                      <th scope="col">Teléfono</th>
+                      <th scope="col">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="clientesTableBody"></tbody>
+                </table>
+              </div>
+              <p id="clientesEmpty" class="empty-message">No hay clientes registrados.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-productos" class="content-section is-hidden" aria-labelledby="productosTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Administración</p>
+              <h2 id="productosTitle">Productos</h2>
+            </div>
+            <p>Administra el nombre, la categoría, el precio y la cantidad disponible.</p>
+          </div>
+
+          <div class="module-grid">
+            <div class="panel">
+              <h3 id="productoFormTitle">Registrar producto</h3>
+              <form id="productoForm" class="form" novalidate>
+                <div class="form-field">
+                  <label for="productoNombre">Nombre</label>
+                  <input id="productoNombre" name="nombre" type="text" required aria-describedby="productoNombreError">
+                  <small id="productoNombreError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="productoCategoria">Categoría</label>
+                  <input id="productoCategoria" name="categoria" type="text" required aria-describedby="productoCategoriaError">
+                  <small id="productoCategoriaError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="productoPrecio">Precio en colones</label>
+                  <input id="productoPrecio" name="precio" type="number" min="0.01" step="0.01" required aria-describedby="productoPrecioError">
+                  <small id="productoPrecioError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="productoCantidad">Cantidad disponible</label>
+                  <input id="productoCantidad" name="cantidad" type="number" min="0" step="1" required aria-describedby="productoCantidadError">
+                  <small id="productoCantidadError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <p id="productoMessage" class="form-message" aria-live="polite"></p>
+
+                <div class="form-actions">
+                  <button id="productoSubmit" class="button button--primary" type="submit">Registrar producto</button>
+                  <button id="productoCancel" class="button button--secondary is-hidden" type="button">Cancelar edición</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel panel--table">
+              <h3>Productos registrados</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Nombre</th>
+                      <th scope="col">Categoría</th>
+                      <th scope="col">Precio</th>
+                      <th scope="col">Cantidad</th>
+                      <th scope="col">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productosTableBody"></tbody>
+                </table>
+              </div>
+              <p id="productosEmpty" class="empty-message">No hay productos registrados.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-proveedores" class="content-section is-hidden" aria-labelledby="proveedoresTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Administración</p>
+              <h2 id="proveedoresTitle">Proveedores</h2>
+            </div>
+            <p>Registra y mantiene actualizada la información de los proveedores.</p>
+          </div>
+
+          <div class="module-grid">
+            <div class="panel">
+              <h3 id="proveedorFormTitle">Registrar proveedor</h3>
+              <form id="proveedorForm" class="form" novalidate>
+                <div class="form-field">
+                  <label for="proveedorEmpresa">Nombre de la empresa</label>
+                  <input id="proveedorEmpresa" name="empresa" type="text" required aria-describedby="proveedorEmpresaError">
+                  <small id="proveedorEmpresaError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="proveedorContacto">Nombre del contacto</label>
+                  <input id="proveedorContacto" name="contacto" type="text" required aria-describedby="proveedorContactoError">
+                  <small id="proveedorContactoError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="proveedorCorreo">Correo electrónico</label>
+                  <input id="proveedorCorreo" name="correo" type="email" required aria-describedby="proveedorCorreoError">
+                  <small id="proveedorCorreoError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <div class="form-field">
+                  <label for="proveedorTelefono">Teléfono</label>
+                  <input id="proveedorTelefono" name="telefono" type="tel" required aria-describedby="proveedorTelefonoError">
+                  <small id="proveedorTelefonoError" class="field-error" aria-live="polite"></small>
+                </div>
+
+                <p id="proveedorMessage" class="form-message" aria-live="polite"></p>
+
+                <div class="form-actions">
+                  <button id="proveedorSubmit" class="button button--primary" type="submit">Registrar proveedor</button>
+                  <button id="proveedorCancel" class="button button--secondary is-hidden" type="button">Cancelar edición</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel panel--table">
+              <h3>Proveedores registrados</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Empresa</th>
+                      <th scope="col">Contacto</th>
+                      <th scope="col">Correo</th>
+                      <th scope="col">Teléfono</th>
+                      <th scope="col">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="proveedoresTableBody"></tbody>
+                </table>
+              </div>
+              <p id="proveedoresEmpty" class="empty-message">No hay proveedores registrados.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
