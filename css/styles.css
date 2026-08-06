@@ -320,6 +320,31 @@ input:focus-visible {
   white-space: nowrap;
 }
 
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.button--logout {
+  flex-shrink: 0;
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.button--logout:hover {
+  border-color: var(--color-primary-dark);
+  background: var(--color-primary-dark);
+  color: #ffffff;
+}
+
+.button--logout:active {
+  transform: translateY(0);
+}
+
 .main-content {
   padding: clamp(1rem, 3vw, 2rem);
 }
@@ -476,6 +501,12 @@ td {
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .topbar__actions {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
 
   .topbar__user {
     white-space: normal;

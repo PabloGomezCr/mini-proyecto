@@ -15,6 +15,7 @@ const loginContrasena = document.querySelector("#loginContrasena");
 const loginUsuarioError = document.querySelector("#loginUsuarioError");
 const loginContrasenaError = document.querySelector("#loginContrasenaError");
 const loginMessage = document.querySelector("#loginMessage");
+const logoutButton = document.querySelector("#logoutButton");
 
 const botonesNavegacion = document.querySelectorAll("[data-section]");
 const secciones = document.querySelectorAll(".content-section");
@@ -178,6 +179,17 @@ function procesarLogin(evento) {
   mostrarSeccion("inicio");
   loginForm.reset();
 }
+function cerrarSesion() {
+  dashboardView.classList.add("is-hidden");
+  loginView.classList.remove("is-hidden");
+
+  loginForm.reset();
+  limpiarErroresLogin();
+  mostrarSeccion("inicio");
+
+  loginUsuario.focus();
+}
+
 
 // 6. Navegación del dashboard
 function mostrarSeccion(nombreSeccion) {
@@ -674,7 +686,8 @@ function procesarAccionTabla(evento, tipoRegistro) {
 
 function registrarEventos() {
   loginForm.addEventListener("submit", procesarLogin);
-
+  logoutButton.addEventListener("click", cerrarSesion);
+  
   botonesNavegacion.forEach((boton) => {
     boton.addEventListener("click", () => mostrarSeccion(boton.dataset.section));
   });
