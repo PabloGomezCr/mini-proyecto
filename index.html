@@ -44,7 +44,7 @@
           <small id="loginContrasenaError" class="field-error" aria-live="polite"></small>
         </div>
 
-        <p id="loginMessage" class="form-message" aria-live="polite"></p>
+       
 
         <button class="button button--primary button--full" type="submit">
           Iniciar sesión
@@ -167,7 +167,7 @@
                   <small id="clienteTelefonoError" class="field-error" aria-live="polite"></small>
                 </div>
 
-                <p id="clienteMessage" class="form-message" aria-live="polite"></p>
+                
 
                 <div class="form-actions">
                   <button id="clienteSubmit" class="button button--primary" type="submit">Registrar cliente</button>
@@ -233,7 +233,7 @@
                   <small id="productoCantidadError" class="field-error" aria-live="polite"></small>
                 </div>
 
-                <p id="productoMessage" class="form-message" aria-live="polite"></p>
+
 
                 <div class="form-actions">
                   <button id="productoSubmit" class="button button--primary" type="submit">Registrar producto</button>
@@ -300,7 +300,7 @@
                   <small id="proveedorTelefonoError" class="field-error" aria-live="polite"></small>
                 </div>
 
-                <p id="proveedorMessage" class="form-message" aria-live="polite"></p>
+                
 
                 <div class="form-actions">
                   <button id="proveedorSubmit" class="button button--primary" type="submit">Registrar proveedor</button>
@@ -332,5 +332,63 @@
       </main>
     </div>
   </div>
+
+
+  <dialog
+    id="systemModal"
+    class="system-modal"
+    aria-labelledby="modalTitle"
+    aria-describedby="modalMessage"
+  >
+    <div class="system-modal__content">
+
+      <div
+        id="modalIcon"
+        class="system-modal__icon"
+        aria-hidden="true"
+      >
+        i
+      </div>
+
+      <div class="system-modal__text">
+        <h2 id="modalTitle">
+          Notificación
+        </h2>
+
+        <p id="modalMessage">
+          Mensaje del sistema.
+        </p>
+      </div>
+
+      <div class="system-modal__actions">
+
+        <button
+          id="modalCancel"
+          class="button button--secondary is-hidden"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="modalConfirm"
+          class="button button--danger is-hidden"
+          type="button"
+        >
+          Confirmar
+        </button>
+
+        <button
+          id="modalClose"
+          class="button button--primary"
+          type="button"
+        >
+          Aceptar
+        </button>
+
+      </div>
+    </div>
+  </dialog>
+
 </body>
 </html>
