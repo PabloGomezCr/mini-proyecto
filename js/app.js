@@ -16,6 +16,11 @@ const loginUsuarioError = document.querySelector("#loginUsuarioError");
 const loginContrasenaError = document.querySelector("#loginContrasenaError");
 const loginMessage = document.querySelector("#loginMessage");
 const logoutButton = document.querySelector("#logoutButton");
+const avatarButton = document.querySelector("#avatarButton");
+const userDropdown = document.querySelector("#userDropdown");
+const profileOption = document.querySelector("#profileOption");
+const profileModal = document.querySelector("#profileModal");
+const profileClose = document.querySelector("#profileClose");
 const themeToggle = document.querySelector("#themeToggle");
 const CLAVE_TEMA = "sistema_tema";
 
@@ -181,6 +186,35 @@ function procesarLogin(evento) {
   mostrarSeccion("inicio");
   loginForm.reset();
 }
+
+function cerrarMenuUsuario() {
+  userDropdown.classList.add("is-hidden");
+  avatarButton.setAttribute("aria-expanded", "false");
+}
+
+function alternarMenuUsuario(evento) {
+  evento.stopPropagation();
+
+  if (userDropdown.classList.contains("is-hidden")) {
+    userDropdown.classList.remove("is-hidden");
+    avatarButton.setAttribute("aria-expanded", "true");
+    return;
+  }
+
+  cerrarMenuUsuario();
+}
+
+function abrirPerfil() {
+  cerrarMenuUsuario();
+  profileModal.classList.remove("is-hidden");
+  profileModal.setAttribute("aria-hidden", "false");
+}
+
+function cerrarPerfil() {
+  profileModal.classList.add("is-hidden");
+  profileModal.setAttribute("aria-hidden", "true");
+}
+
 function cerrarSesion() {
   dashboardView.classList.add("is-hidden");
   loginView.classList.remove("is-hidden");
@@ -721,7 +755,30 @@ function alternarTema() {
 
 function registrarEventos() {
   loginForm.addEventListener("submit", procesarLogin);
-  logoutButton.addEventListener("click", cerrarSesion);
+  logoutButton.addEventListener("click", () => {
+    cerrarMenuUsuario();
+    cerrarSesion();
+  });
+  avatarButton.addEventListener("click", alternarMenuUsuario);
+  userDropdown.addEventListener("click", (evento) => evento.stopPropagation());
+  profileOption.addEventListener("click", abrirPerfil);
+  profileClose.addEventListener("click", cerrarPerfil);
+  profileModal.addEventListener("click", (evento) => {
+    if (evento.target === profileModal) {
+      cerrarPerfil();
+    }
+  });
+  document.addEventListener("click", (evento) => {
+    if (!userDropdown.contains(evento.target) && evento.target !== avatarButton) {
+      cerrarMenuUsuario();
+    }
+  });
+  document.addEventListener("keydown", (evento) => {
+    if (evento.key === "Escape") {
+      cerrarMenuUsuario();
+      cerrarPerfil();
+    }
+  });
   themeToggle.addEventListener("click", alternarTema);
   
   botonesNavegacion.forEach((boton) => {

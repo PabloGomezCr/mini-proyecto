@@ -279,3 +279,91 @@ Completar únicamente los datos reales del equipo y del repositorio.
 ### Aprendizaje obtenido
 
 La documentación debe describir lo que realmente funciona y no afirmar evidencias inexistentes.
+
+---
+
+## Prompts importantes — Kevin Ortiz
+
+Esta sección registra los prompts más relevantes que utilicé durante el desarrollo del proyecto. Se seleccionaron tres prompts por ser los pilares del sistema: la definición del alcance, la autenticación del login y el patrón CRUD que se replicó en los demás módulos.
+
+### 11. Planificación del alcance
+
+### Objetivo
+
+Definir qué funciones debe incluir el proyecto y cuáles deben quedar fuera, estableciendo el límite del trabajo desde el inicio.
+
+### Prompt inicial
+
+> Ayúdame a planificar un sistema administrativo web con login, dashboard y módulos de clientes, productos y proveedores usando HTML, CSS, JavaScript y LocalStorage.
+
+### Posible problema de la respuesta
+
+La IA podría proponer backend, roles, reportes o funciones no solicitadas, ampliando el alcance más allá del enunciado.
+
+### Prompt de mejora
+
+> Limita la planificación a login, dashboard, CRUD de clientes, productos y proveedores, LocalStorage y Git. No agregues backend, APIs, roles, reportes ni frameworks.
+
+### Adaptación realizada por el equipo
+
+Revisé la propuesta y eliminé cualquier actividad que estuviera fuera del enunciado oficial, manteniendo únicamente lo solicitado.
+
+### Aprendizaje obtenido
+
+Un prompt mejora cuando define claramente el alcance y las restricciones; este prompt fue clave porque guió todo el resto del desarrollo.
+
+---
+
+### 12. Validación del login
+
+### Objetivo
+
+Validar usuario y contraseña sin recargar la página, controlando el acceso al dashboard.
+
+### Prompt inicial
+
+> Crea un login con JavaScript.
+
+### Posible problema de la respuesta
+
+La respuesta podría incluir backend, sesiones reales, registro o recuperación de contraseña, alejándose del propósito educativo.
+
+### Prompt de mejora
+
+> Implementa un login educativo en JavaScript vanilla usando un objeto con usuario admin y contraseña Admin123. Valida campos vacíos y credenciales incorrectas, muestra mensajes en el DOM y no uses alert, backend, registro ni recuperación de contraseña.
+
+### Adaptación realizada por el equipo
+
+Verifiqué que el dashboard estuviera oculto al inicio y que solo apareciera con credenciales correctas, mostrando los mensajes en el DOM.
+
+### Aprendizaje obtenido
+
+La autenticación del navegador sirve para practicar lógica, pero no debe confundirse con una solución segura de producción; este prompt fue importante porque definió el punto de entrada al sistema.
+
+---
+
+### 13. CRUD de clientes
+
+### Objetivo
+
+Registrar, consultar, editar y eliminar clientes, estableciendo el patrón que se replicaría en productos y proveedores.
+
+### Prompt inicial
+
+> Crea un CRUD de clientes.
+
+### Posible problema de la respuesta
+
+La IA podría agregar dirección, identificación, búsqueda o paginación, complicando el módulo innecesariamente.
+
+### Prompt de mejora
+
+> Crea únicamente la lógica del CRUD de clientes con ID, nombre completo, correo y teléfono. Usa un arreglo, eventos del DOM, validaciones, edición del registro seleccionado, confirmación antes de eliminar y LocalStorage.
+
+### Adaptación realizada por el equipo
+
+Ajusté los selectores para que coincidieran con los elementos reales del HTML y comprobé la actualización de la tarjeta del dashboard.
+
+### Aprendizaje obtenido
+
+Un CRUD necesita sincronizar el arreglo, LocalStorage, la tabla y los contadores; este prompt fue fundamental porque sirvió de base para los módulos de productos y proveedores.
