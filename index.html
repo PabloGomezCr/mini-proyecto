@@ -186,6 +186,14 @@
               <p>Total de proveedores</p>
               <strong id="totalProveedores">0</strong>
             </article>
+            <article class="summary-card">
+              <p>Valor total del inventario</p>
+              <strong id="valorInventario">₡0.00</strong>
+            </article>
+            <article class="summary-card">
+              <p>Producto más caro</p>
+              <strong id="productoMasCaro">—</strong>
+            </article>
           </div>
         </section>
 
@@ -230,7 +238,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Clientes registrados</h3>
+              <div class="table-panel-header">
+                <h3>Clientes registrados</h3>
+                <button id="clienteExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -238,6 +251,7 @@
                       <th scope="col">Nombre</th>
                       <th scope="col">Correo</th>
                       <th scope="col">Teléfono</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -296,7 +310,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Productos registrados</h3>
+              <div class="table-panel-header">
+                <h3>Productos registrados</h3>
+                <button id="productoExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -305,6 +324,7 @@
                       <th scope="col">Categoría</th>
                       <th scope="col">Precio</th>
                       <th scope="col">Cantidad</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -363,7 +383,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Proveedores registrados</h3>
+              <div class="table-panel-header">
+                <h3>Proveedores registrados</h3>
+                <button id="proveedorExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -372,6 +397,7 @@
                       <th scope="col">Contacto</th>
                       <th scope="col">Correo</th>
                       <th scope="col">Teléfono</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -385,6 +411,18 @@
       </main>
     </div>
   </div>
+
+<!-- Modal de confirmación para cerrar sesión -->
+<div id="logoutModal" class="modal-overlay is-hidden">
+  <div class="modal-card">
+    <h3>Cerrar sesión</h3>
+    <p>¿Estás seguro de que deseas salir del sistema?</p>
+    <div class="modal-actions">
+      <button id="cancelLogout" class="button button--secondary" type="button">Cancelar</button>
+      <button id="confirmLogout" class="button button--danger" type="button">Sí, cerrar sesión</button>
+    </div>
+  </div>
+</div>
 
   <!-- Modal de perfil del administrador -->
   <div
