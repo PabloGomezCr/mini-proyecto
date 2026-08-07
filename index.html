@@ -95,19 +95,19 @@
           <p class="eyebrow">Panel de control</p>
           <h1>Sistema Administrativo Web</h1>
         </div>
-            <div class="topbar__actions">
-            <p class="topbar__user">
+        <div class="topbar__actions">
+          <p class="topbar__user">
             Usuario: <strong>Administrador</strong>
-            </p>
+          </p>
 
-  <button
-    id="logoutButton"
-    class="button button--logout"
-    type="button"
-  >
-    Cerrar sesión
-  </button>
-</div>
+          <button
+            id="logoutButton"
+            class="button button--logout"
+            type="button"
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </header>
 
       <main class="main-content">
@@ -132,6 +132,14 @@
             <article class="summary-card">
               <p>Total de proveedores</p>
               <strong id="totalProveedores">0</strong>
+            </article>
+            <article class="summary-card">
+              <p>Valor total del inventario</p>
+              <strong id="valorInventario">₡0.00</strong>
+            </article>
+            <article class="summary-card">
+              <p>Producto más caro</p>
+              <strong id="productoMasCaro">—</strong>
             </article>
           </div>
         </section>
@@ -177,7 +185,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Clientes registrados</h3>
+              <div class="table-panel-header">
+                <h3>Clientes registrados</h3>
+                <button id="clienteExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -185,6 +198,7 @@
                       <th scope="col">Nombre</th>
                       <th scope="col">Correo</th>
                       <th scope="col">Teléfono</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -243,7 +257,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Productos registrados</h3>
+              <div class="table-panel-header">
+                <h3>Productos registrados</h3>
+                <button id="productoExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -252,6 +271,7 @@
                       <th scope="col">Categoría</th>
                       <th scope="col">Precio</th>
                       <th scope="col">Cantidad</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -310,7 +330,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Proveedores registrados</h3>
+              <div class="table-panel-header">
+                <h3>Proveedores registrados</h3>
+                <button id="proveedorExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -319,6 +344,7 @@
                       <th scope="col">Contacto</th>
                       <th scope="col">Correo</th>
                       <th scope="col">Teléfono</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
