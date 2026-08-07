@@ -16,15 +16,18 @@ const loginUsuarioError = document.querySelector("#loginUsuarioError");
 const loginContrasenaError = document.querySelector("#loginContrasenaError");
 const loginMessage = document.querySelector("#loginMessage");
 const logoutButton = document.querySelector("#logoutButton");
-
 const botonesNavegacion = document.querySelectorAll("[data-section]");
 const secciones = document.querySelectorAll(".content-section");
-
 const totalClientes = document.querySelector("#totalClientes");
 const totalProductos = document.querySelector("#totalProductos");
 const totalProveedores = document.querySelector("#totalProveedores");
 const valorInventario = document.querySelector("#valorInventario");
 const productoMasCaro = document.querySelector("#productoMasCaro");
+
+// Referencias del Modal de Logout
+const logoutModal = document.querySelector("#logoutModal");
+const cancelLogout = document.querySelector("#cancelLogout");
+const confirmLogout = document.querySelector("#confirmLogout");
 
 const clienteForm = document.querySelector("#clienteForm");
 const clienteNombre = document.querySelector("#clienteNombre");
@@ -88,15 +91,11 @@ let clienteEnEdicion = null;
 let productoEnEdicion = null;
 let proveedorEnEdicion = null;
 
-// 4. Funciones de LocalStorage
+// 4. Funciones de LocalStorage y Utilidades
 function leerArregloDeLocalStorage(clave) {
   try {
     const contenido = localStorage.getItem(clave);
-
-    if (contenido === null) {
-      return [];
-    }
-
+    if (contenido === null) return [];
     const datos = JSON.parse(contenido);
     return Array.isArray(datos) ? datos : [];
   } catch (error) {
@@ -127,24 +126,21 @@ function esCorreoValido(correo) {
 }
 
 function mostrarMensaje(elemento, mensaje, tipo) {
+  if (!elemento) return;
   elemento.textContent = mensaje;
   elemento.classList.remove("is-error", "is-success");
-
   if (tipo) {
     elemento.classList.add(tipo === "error" ? "is-error" : "is-success");
   }
 }
 
 function establecerError(input, elementoError, mensaje) {
-  elementoError.textContent = mensaje;
-  input.setAttribute("aria-invalid", mensaje ? "true" : "false");
+  if (elementoError) elementoError.textContent = mensaje;
+  if (input) input.setAttribute("aria-invalid", mensaje ? "true" : "false");
 }
 
 function formatearFecha(fechaISO) {
-  if (!fechaISO) {
-    return "—";
-  }
-
+  if (!fechaISO) return "—";
   return new Date(fechaISO).toLocaleDateString("es-CR", {
     day: "2-digit",
     month: "2-digit",
@@ -152,7 +148,35 @@ function formatearFecha(fechaISO) {
   });
 }
 
-// 5. Funciones del login
+// 5. Funciones de Exportación a CSV
+function convertirACSV(datos, columnas) {
+  const encabezados = columnas.map(col => `"${col.etiqueta}"`).join(",");
+  const filas = datos.map(item => {
+    return columnas.map(col => {
+      let valor = item[col.clave];
+      if (col.clave === "fechaCreacion") {
+        valor = formatearFecha(valor);
+      }
+      if (valor === undefined || valor === null) valor = "";
+      return `"${String(valor).replaceAll('"', '""')}"`;
+    }).join(",");
+  });
+  return [encabezados, ...filas].join("\n");
+}
+
+function descargarCSV(nombreArchivo, contenidoCSV) {
+  const blob = new Blob(["\uFEFF" + contenidoCSV], { type: "text/csv;charset=utf-8;" });
+  const enlace = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  enlace.setAttribute("href", url);
+  enlace.setAttribute("download", nombreArchivo);
+  enlace.style.visibility = "hidden";
+  document.body.appendChild(enlace);
+  enlace.click();
+  document.body.removeChild(enlace);
+}
+
+// 6. Funciones del Login y Logout (Modal)
 function limpiarErroresLogin() {
   establecerError(loginUsuario, loginUsuarioError, "");
   establecerError(loginContrasena, loginContrasenaError, "");
@@ -197,7 +221,17 @@ function procesarLogin(evento) {
   loginForm.reset();
 }
 
-function cerrarSesion() {
+function abrirModalLogout() {
+  if (logoutModal) logoutModal.classList.remove("is-hidden");
+}
+
+function cerrarModalLogout() {
+  if (logoutModal) logoutModal.classList.add("is-hidden");
+}
+
+function procesarCerrarSesion() {
+  cerrarModalLogout();
+
   dashboardView.classList.add("is-hidden");
   loginView.classList.remove("is-hidden");
 
@@ -208,7 +242,7 @@ function cerrarSesion() {
   loginUsuario.focus();
 }
 
-// 6. Navegación del dashboard
+// 7. Navegación
 function mostrarSeccion(nombreSeccion) {
   secciones.forEach((seccion) => {
     seccion.classList.toggle("is-hidden", seccion.id !== `section-${nombreSeccion}`);
@@ -219,7 +253,7 @@ function mostrarSeccion(nombreSeccion) {
   });
 }
 
-// 7. CRUD de clientes
+// 8. CRUD Clientes
 function limpiarFormularioCliente() {
   clienteForm.reset();
   clienteEnEdicion = null;
@@ -283,7 +317,6 @@ function guardarCliente(evento) {
     mostrarMensaje(clienteMessage, "Cliente registrado correctamente.", "success");
   } else {
     const indice = clientes.findIndex((cliente) => cliente.id === clienteEnEdicion);
-
     if (indice !== -1) {
       clientes[indice] = {
         ...clientes[indice],
@@ -308,10 +341,7 @@ function guardarCliente(evento) {
 
 function iniciarEdicionCliente(id) {
   const cliente = clientes.find((item) => item.id === id);
-
-  if (!cliente) {
-    return;
-  }
+  if (!cliente) return;
 
   clienteEnEdicion = id;
   clienteNombre.value = cliente.nombre;
@@ -326,10 +356,7 @@ function iniciarEdicionCliente(id) {
 
 function eliminarCliente(id) {
   const cliente = clientes.find((item) => item.id === id);
-
-  if (!cliente || !window.confirm(`¿Deseas eliminar a ${cliente.nombre}?`)) {
-    return;
-  }
+  if (!cliente || !window.confirm(`¿Deseas eliminar a ${cliente.nombre}?`)) return;
 
   clientes = clientes.filter((item) => item.id !== id);
   guardarEnLocalStorage(CLAVE_CLIENTES, clientes);
@@ -342,6 +369,7 @@ function eliminarCliente(id) {
 }
 
 function renderizarClientes() {
+  if (!clientesTableBody) return;
   clientesTableBody.innerHTML = clientes
     .map((cliente) => `
       <tr>
@@ -359,7 +387,9 @@ function renderizarClientes() {
     `)
     .join("");
 
-  clientesEmpty.classList.toggle("is-hidden", clientes.length > 0);
+  if (clientesEmpty) {
+    clientesEmpty.classList.toggle("is-hidden", clientes.length > 0);
+  }
 }
 
 function exportarClientesCSV() {
@@ -367,18 +397,16 @@ function exportarClientesCSV() {
     mostrarMensaje(clienteMessage, "No hay clientes para exportar.", "error");
     return;
   }
-
   const csv = convertirACSV(clientes, [
     { clave: "nombre", etiqueta: "Nombre" },
     { clave: "correo", etiqueta: "Correo" },
     { clave: "telefono", etiqueta: "Teléfono" },
     { clave: "fechaCreacion", etiqueta: "Fecha de registro" }
   ]);
-
   descargarCSV("clientes.csv", csv);
 }
 
-// 8. CRUD de productos
+// 9. CRUD Productos
 function limpiarFormularioProducto() {
   productoForm.reset();
   productoEnEdicion = null;
@@ -400,8 +428,8 @@ function validarProducto() {
 
   const nombre = productoNombre.value.trim();
   const categoria = productoCategoria.value.trim();
-  const precio = Number(productoPrecio.value);
-  const cantidad = Number(productoCantidad.value);
+  const precio = parseFloat(productoPrecio.value);
+  const cantidad = parseInt(productoCantidad.value, 10);
   let valido = true;
 
   if (!nombre) {
@@ -414,13 +442,13 @@ function validarProducto() {
     valido = false;
   }
 
-  if (productoPrecio.value === "" || precio <= 0) {
-    establecerError(productoPrecio, productoPrecioError, "El precio debe ser mayor que cero.");
+  if (isNaN(precio) || precio <= 0) {
+    establecerError(productoPrecio, productoPrecioError, "Ingresa un precio mayor a 0.");
     valido = false;
   }
 
-  if (productoCantidad.value === "" || cantidad < 0 || !Number.isInteger(cantidad)) {
-    establecerError(productoCantidad, productoCantidadError, "La cantidad debe ser un número entero mayor o igual que cero.");
+  if (isNaN(cantidad) || cantidad < 0) {
+    establecerError(productoCantidad, productoCantidadError, "Ingresa una cantidad válida.");
     valido = false;
   }
 
@@ -447,8 +475,7 @@ function guardarProducto(evento) {
     });
     mostrarMensaje(productoMessage, "Producto registrado correctamente.", "success");
   } else {
-    const indice = productos.findIndex((producto) => producto.id === productoEnEdicion);
-
+    const indice = productos.findIndex((p) => p.id === productoEnEdicion);
     if (indice !== -1) {
       productos[indice] = {
         ...productos[indice],
@@ -473,11 +500,8 @@ function guardarProducto(evento) {
 }
 
 function iniciarEdicionProducto(id) {
-  const producto = productos.find((item) => item.id === id);
-
-  if (!producto) {
-    return;
-  }
+  const producto = productos.find((p) => p.id === id);
+  if (!producto) return;
 
   productoEnEdicion = id;
   productoNombre.value = producto.nombre;
@@ -492,13 +516,10 @@ function iniciarEdicionProducto(id) {
 }
 
 function eliminarProducto(id) {
-  const producto = productos.find((item) => item.id === id);
+  const producto = productos.find((p) => p.id === id);
+  if (!producto || !window.confirm(`¿Deseas eliminar ${producto.nombre}?`)) return;
 
-  if (!producto || !window.confirm(`¿Deseas eliminar el producto ${producto.nombre}?`)) {
-    return;
-  }
-
-  productos = productos.filter((item) => item.id !== id);
+  productos = productos.filter((p) => p.id !== id);
   guardarEnLocalStorage(CLAVE_PRODUCTOS, productos);
   renderizarProductos();
   actualizarResumen();
@@ -508,33 +529,29 @@ function eliminarProducto(id) {
   }
 }
 
-function formatearColones(valor) {
-  return `₡${Number(valor).toLocaleString("es-CR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })}`;
-}
-
 function renderizarProductos() {
+  if (!productosTableBody) return;
   productosTableBody.innerHTML = productos
-    .map((producto) => `
+    .map((p) => `
       <tr>
-        <td>${escaparHTML(producto.nombre)}</td>
-        <td>${escaparHTML(producto.categoria)}</td>
-        <td>${formatearColones(producto.precio)}</td>
-        <td>${escaparHTML(producto.cantidad)}</td>
-        <td>${formatearFecha(producto.fechaCreacion)}</td>
+        <td>${escaparHTML(p.nombre)}</td>
+        <td>${escaparHTML(p.categoria)}</td>
+        <td>₡${Number(p.precio).toFixed(2)}</td>
+        <td>${p.cantidad}</td>
+        <td>${formatearFecha(p.fechaCreacion)}</td>
         <td>
           <div class="table-actions">
-            <button class="button button--secondary button--small" type="button" data-action="editar" data-id="${producto.id}">Editar</button>
-            <button class="button button--danger button--small" type="button" data-action="eliminar" data-id="${producto.id}">Eliminar</button>
+            <button class="button button--secondary button--small" type="button" data-action="editar" data-id="${p.id}">Editar</button>
+            <button class="button button--danger button--small" type="button" data-action="eliminar" data-id="${p.id}">Eliminar</button>
           </div>
         </td>
       </tr>
     `)
     .join("");
 
-  productosEmpty.classList.toggle("is-hidden", productos.length > 0);
+  if (productosEmpty) {
+    productosEmpty.classList.toggle("is-hidden", productos.length > 0);
+  }
 }
 
 function exportarProductosCSV() {
@@ -542,7 +559,6 @@ function exportarProductosCSV() {
     mostrarMensaje(productoMessage, "No hay productos para exportar.", "error");
     return;
   }
-
   const csv = convertirACSV(productos, [
     { clave: "nombre", etiqueta: "Nombre" },
     { clave: "categoria", etiqueta: "Categoría" },
@@ -550,11 +566,10 @@ function exportarProductosCSV() {
     { clave: "cantidad", etiqueta: "Cantidad" },
     { clave: "fechaCreacion", etiqueta: "Fecha de registro" }
   ]);
-
   descargarCSV("productos.csv", csv);
 }
 
-// 9. CRUD de proveedores
+// 10. CRUD Proveedores
 function limpiarFormularioProveedor() {
   proveedorForm.reset();
   proveedorEnEdicion = null;
@@ -581,12 +596,12 @@ function validarProveedor() {
   let valido = true;
 
   if (!empresa) {
-    establecerError(proveedorEmpresa, proveedorEmpresaError, "El nombre de la empresa es obligatorio.");
+    establecerError(proveedorEmpresa, proveedorEmpresaError, "La empresa es obligatoria.");
     valido = false;
   }
 
   if (!contacto) {
-    establecerError(proveedorContacto, proveedorContactoError, "El nombre del contacto es obligatorio.");
+    establecerError(proveedorContacto, proveedorContactoError, "El contacto es obligatorio.");
     valido = false;
   }
 
@@ -626,8 +641,7 @@ function guardarProveedor(evento) {
     });
     mostrarMensaje(proveedorMessage, "Proveedor registrado correctamente.", "success");
   } else {
-    const indice = proveedores.findIndex((proveedor) => proveedor.id === proveedorEnEdicion);
-
+    const indice = proveedores.findIndex((p) => p.id === proveedorEnEdicion);
     if (indice !== -1) {
       proveedores[indice] = {
         ...proveedores[indice],
@@ -652,11 +666,8 @@ function guardarProveedor(evento) {
 }
 
 function iniciarEdicionProveedor(id) {
-  const proveedor = proveedores.find((item) => item.id === id);
-
-  if (!proveedor) {
-    return;
-  }
+  const proveedor = proveedores.find((p) => p.id === id);
+  if (!proveedor) return;
 
   proveedorEnEdicion = id;
   proveedorEmpresa.value = proveedor.empresa;
@@ -671,13 +682,10 @@ function iniciarEdicionProveedor(id) {
 }
 
 function eliminarProveedor(id) {
-  const proveedor = proveedores.find((item) => item.id === id);
+  const proveedor = proveedores.find((p) => p.id === id);
+  if (!proveedor || !window.confirm(`¿Deseas eliminar a ${proveedor.empresa}?`)) return;
 
-  if (!proveedor || !window.confirm(`¿Deseas eliminar al proveedor ${proveedor.empresa}?`)) {
-    return;
-  }
-
-  proveedores = proveedores.filter((item) => item.id !== id);
+  proveedores = proveedores.filter((p) => p.id !== id);
   guardarEnLocalStorage(CLAVE_PROVEEDORES, proveedores);
   renderizarProveedores();
   actualizarResumen();
@@ -688,25 +696,28 @@ function eliminarProveedor(id) {
 }
 
 function renderizarProveedores() {
+  if (!proveedoresTableBody) return;
   proveedoresTableBody.innerHTML = proveedores
-    .map((proveedor) => `
+    .map((p) => `
       <tr>
-        <td>${escaparHTML(proveedor.empresa)}</td>
-        <td>${escaparHTML(proveedor.contacto)}</td>
-        <td>${escaparHTML(proveedor.correo)}</td>
-        <td>${escaparHTML(proveedor.telefono)}</td>
-        <td>${formatearFecha(proveedor.fechaCreacion)}</td>
+        <td>${escaparHTML(p.empresa)}</td>
+        <td>${escaparHTML(p.contacto)}</td>
+        <td>${escaparHTML(p.correo)}</td>
+        <td>${escaparHTML(p.telefono)}</td>
+        <td>${formatearFecha(p.fechaCreacion)}</td>
         <td>
           <div class="table-actions">
-            <button class="button button--secondary button--small" type="button" data-action="editar" data-id="${proveedor.id}">Editar</button>
-            <button class="button button--danger button--small" type="button" data-action="eliminar" data-id="${proveedor.id}">Eliminar</button>
+            <button class="button button--secondary button--small" type="button" data-action="editar" data-id="${p.id}">Editar</button>
+            <button class="button button--danger button--small" type="button" data-action="eliminar" data-id="${p.id}">Eliminar</button>
           </div>
         </td>
       </tr>
     `)
     .join("");
 
-  proveedoresEmpty.classList.toggle("is-hidden", proveedores.length > 0);
+  if (proveedoresEmpty) {
+    proveedoresEmpty.classList.toggle("is-hidden", proveedores.length > 0);
+  }
 }
 
 function exportarProveedoresCSV() {
@@ -714,7 +725,6 @@ function exportarProveedoresCSV() {
     mostrarMensaje(proveedorMessage, "No hay proveedores para exportar.", "error");
     return;
   }
-
   const csv = convertirACSV(proveedores, [
     { clave: "empresa", etiqueta: "Empresa" },
     { clave: "contacto", etiqueta: "Contacto" },
@@ -722,135 +732,90 @@ function exportarProveedoresCSV() {
     { clave: "telefono", etiqueta: "Teléfono" },
     { clave: "fechaCreacion", etiqueta: "Fecha de registro" }
   ]);
-
   descargarCSV("proveedores.csv", csv);
 }
 
-// 10. Tarjetas de resumen
+// 11. Cálculos e Indicadores
 function calcularValorInventario() {
-  return productos.reduce(
-    (total, producto) => total + producto.precio * producto.cantidad,
-    0
-  );
+  return productos.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
 }
 
 function obtenerProductoMasCaro() {
-  if (productos.length === 0) {
-    return null;
-  }
-
-  return productos.reduce((masCaro, actual) =>
-    actual.precio > masCaro.precio ? actual : masCaro
-  );
+  if (productos.length === 0) return null;
+  return productos.reduce((max, p) => p.precio > max.precio ? p : max, productos[0]);
 }
 
 function actualizarResumen() {
-  totalClientes.textContent = clientes.length;
-  totalProductos.textContent = productos.length;
-  totalProveedores.textContent = proveedores.length;
+  if (totalClientes) totalClientes.textContent = clientes.length;
+  if (totalProductos) totalProductos.textContent = productos.length;
+  if (totalProveedores) totalProveedores.textContent = proveedores.length;
 
-  valorInventario.textContent = formatearColones(calcularValorInventario());
+  const totalValor = calcularValorInventario();
+  if (valorInventario) valorInventario.textContent = `₡${totalValor.toFixed(2)}`;
 
   const masCaro = obtenerProductoMasCaro();
-  productoMasCaro.textContent = masCaro
-    ? `${masCaro.nombre} (${formatearColones(masCaro.precio)})`
-    : "—";
-}
-
-// 11. Exportación a CSV (utilidades genéricas)
-function convertirACSV(datos, columnas) {
-  const encabezado = columnas.map((columna) => columna.etiqueta).join(",");
-
-  const filas = datos.map((item) =>
-    columnas
-      .map((columna) => {
-        const valor =
-          columna.clave === "fechaCreacion"
-            ? formatearFecha(item[columna.clave])
-            : item[columna.clave] ?? "";
-        const texto = String(valor).replaceAll('"', '""');
-        return `"${texto}"`;
-      })
-      .join(",")
-  );
-
-  return [encabezado, ...filas].join("\n");
-}
-
-function descargarCSV(nombreArchivo, contenidoCSV) {
-  const bom = "\uFEFF";
-  const blob = new Blob([bom + contenidoCSV], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-
-  const enlace = document.createElement("a");
-  enlace.href = url;
-  enlace.download = nombreArchivo;
-  document.body.appendChild(enlace);
-  enlace.click();
-  document.body.removeChild(enlace);
-
-  URL.revokeObjectURL(url);
-}
-
-// 12. Eventos
-function procesarAccionTabla(evento, tipoRegistro) {
-  const boton = evento.target.closest("button[data-action]");
-
-  if (!boton) {
-    return;
-  }
-
-  const id = Number(boton.dataset.id);
-  const accion = boton.dataset.action;
-
-  if (tipoRegistro === "cliente") {
-    accion === "editar" ? iniciarEdicionCliente(id) : eliminarCliente(id);
-  }
-
-  if (tipoRegistro === "producto") {
-    accion === "editar" ? iniciarEdicionProducto(id) : eliminarProducto(id);
-  }
-
-  if (tipoRegistro === "proveedor") {
-    accion === "editar" ? iniciarEdicionProveedor(id) : eliminarProveedor(id);
+  if (productoMasCaro) {
+    productoMasCaro.textContent = masCaro ? `${masCaro.nombre} (₡${Number(masCaro.precio).toFixed(2)})` : "—";
   }
 }
 
+// 12. Listeners de eventos
 function registrarEventos() {
-  loginForm.addEventListener("submit", procesarLogin);
-  logoutButton.addEventListener("click", cerrarSesion);
+  if (loginForm) loginForm.addEventListener("submit", procesarLogin);
+  
+  // Eventos del Logout y Modal
+  if (logoutButton) logoutButton.addEventListener("click", abrirModalLogout);
+  if (cancelLogout) cancelLogout.addEventListener("click", cerrarModalLogout);
+  if (confirmLogout) confirmLogout.addEventListener("click", procesarCerrarSesion);
 
   botonesNavegacion.forEach((boton) => {
-    boton.addEventListener("click", () => mostrarSeccion(boton.dataset.section));
+    boton.addEventListener("click", () => {
+      mostrarSeccion(boton.dataset.section);
+    });
   });
 
-  clienteForm.addEventListener("submit", guardarCliente);
-  clienteCancel.addEventListener("click", () => {
-    limpiarFormularioCliente();
-    mostrarMensaje(clienteMessage, "Edición cancelada.", "");
-  });
-  clientesTableBody.addEventListener("click", (evento) => procesarAccionTabla(evento, "cliente"));
-  clienteExportar.addEventListener("click", exportarClientesCSV);
+  if (clienteForm) clienteForm.addEventListener("submit", guardarCliente);
+  if (clienteCancel) clienteCancel.addEventListener("click", limpiarFormularioCliente);
+  if (clienteExportar) clienteExportar.addEventListener("click", exportarClientesCSV);
+  if (clientesTableBody) {
+    clientesTableBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      const id = Number(btn.dataset.id);
+      if (btn.dataset.action === "editar") iniciarEdicionCliente(id);
+      if (btn.dataset.action === "eliminar") eliminarCliente(id);
+    });
+  }
 
-  productoForm.addEventListener("submit", guardarProducto);
-  productoCancel.addEventListener("click", () => {
-    limpiarFormularioProducto();
-    mostrarMensaje(productoMessage, "Edición cancelada.", "");
-  });
-  productosTableBody.addEventListener("click", (evento) => procesarAccionTabla(evento, "producto"));
-  productoExportar.addEventListener("click", exportarProductosCSV);
+  if (productoForm) productoForm.addEventListener("submit", guardarProducto);
+  if (productoCancel) productoCancel.addEventListener("click", limpiarFormularioProducto);
+  if (productoExportar) productoExportar.addEventListener("click", exportarProductosCSV);
+  if (productosTableBody) {
+    productosTableBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      const id = Number(btn.dataset.id);
+      if (btn.dataset.action === "editar") iniciarEdicionProducto(id);
+      if (btn.dataset.action === "eliminar") eliminarProducto(id);
+    });
+  }
 
-  proveedorForm.addEventListener("submit", guardarProveedor);
-  proveedorCancel.addEventListener("click", () => {
-    limpiarFormularioProveedor();
-    mostrarMensaje(proveedorMessage, "Edición cancelada.", "");
-  });
-  proveedoresTableBody.addEventListener("click", (evento) => procesarAccionTabla(evento, "proveedor"));
-  proveedorExportar.addEventListener("click", exportarProveedoresCSV);
+  if (proveedorForm) proveedorForm.addEventListener("submit", guardarProveedor);
+  if (proveedorCancel) proveedorCancel.addEventListener("click", limpiarFormularioProveedor);
+  if (proveedorExportar) proveedorExportar.addEventListener("click", exportarProveedoresCSV);
+  if (proveedoresTableBody) {
+    proveedoresTableBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      const id = Number(btn.dataset.id);
+      if (btn.dataset.action === "editar") iniciarEdicionProveedor(id);
+      if (btn.dataset.action === "eliminar") eliminarProveedor(id);
+    });
+  }
 }
 
-// 13. Inicialización de la aplicación
-function inicializarAplicacion() {
+// 13. Inicialización
+function inicializarApp() {
   clientes = leerArregloDeLocalStorage(CLAVE_CLIENTES);
   productos = leerArregloDeLocalStorage(CLAVE_PRODUCTOS);
   proveedores = leerArregloDeLocalStorage(CLAVE_PROVEEDORES);
@@ -859,7 +824,8 @@ function inicializarAplicacion() {
   renderizarProductos();
   renderizarProveedores();
   actualizarResumen();
+
   registrarEventos();
 }
 
-inicializarAplicacion();
+document.addEventListener("DOMContentLoaded", inicializarApp);
