@@ -15,6 +15,7 @@ const loginContrasena = document.querySelector("#loginContrasena");
 const loginUsuarioError = document.querySelector("#loginUsuarioError");
 const loginContrasenaError = document.querySelector("#loginContrasenaError");
 const loginMessage = document.querySelector("#loginMessage");
+const loginRecordarme = document.querySelector("#loginRecordarme");
 const logoutButton = document.querySelector("#logoutButton");
 const avatarButton = document.querySelector("#avatarButton");
 const userDropdown = document.querySelector("#userDropdown");
@@ -23,6 +24,7 @@ const profileModal = document.querySelector("#profileModal");
 const profileClose = document.querySelector("#profileClose");
 const themeToggle = document.querySelector("#themeToggle");
 const CLAVE_TEMA = "sistema_tema";
+const CLAVE_SESION = "sistema_sesion";
 
 const botonesNavegacion = document.querySelectorAll("[data-section]");
 const secciones = document.querySelectorAll(".content-section");
@@ -181,10 +183,28 @@ function procesarLogin(evento) {
     return;
   }
 
+  if (loginRecordarme.checked) {
+    localStorage.setItem(CLAVE_SESION, "activa");
+  } else {
+    localStorage.removeItem(CLAVE_SESION);
+  }
+
   loginView.classList.add("is-hidden");
   dashboardView.classList.remove("is-hidden");
   mostrarSeccion("inicio");
   loginForm.reset();
+}
+
+function restaurarSesion() {
+  const sesionActiva = localStorage.getItem(CLAVE_SESION) === "activa";
+
+  if (!sesionActiva) {
+    return;
+  }
+
+  loginView.classList.add("is-hidden");
+  dashboardView.classList.remove("is-hidden");
+  mostrarSeccion("inicio");
 }
 
 function cerrarMenuUsuario() {
@@ -216,6 +236,9 @@ function cerrarPerfil() {
 }
 
 function cerrarSesion() {
+  localStorage.removeItem(CLAVE_SESION);
+  loginRecordarme.checked = false;
+
   dashboardView.classList.add("is-hidden");
   loginView.classList.remove("is-hidden");
 
@@ -819,6 +842,7 @@ function inicializarAplicacion() {
   actualizarResumen();
   inicializarTema();
   registrarEventos();
+  restaurarSesion();
 }
 
 inicializarAplicacion();

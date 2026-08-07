@@ -173,6 +173,30 @@ input:focus-visible {
   border-color: var(--color-error);
 }
 
+.form-field--checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: -0.25rem;
+}
+
+.form-field--checkbox input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.form-field--checkbox label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-soft);
+  cursor: pointer;
+  user-select: none;
+}
+
 .field-error {
   min-height: 1.1rem;
   color: var(--color-error);
