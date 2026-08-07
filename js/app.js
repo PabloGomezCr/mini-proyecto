@@ -16,6 +16,9 @@ const loginUsuarioError = document.querySelector("#loginUsuarioError");
 const loginContrasenaError = document.querySelector("#loginContrasenaError");
 const loginMessage = document.querySelector("#loginMessage");
 const logoutButton = document.querySelector("#logoutButton");
+const themeToggle = document.querySelector("#themeToggle");
+const CLAVE_TEMA = "sistema_tema";
+
 const botonesNavegacion = document.querySelectorAll("[data-section]");
 const secciones = document.querySelectorAll(".content-section");
 const totalClientes = document.querySelector("#totalClientes");
@@ -759,10 +762,46 @@ function actualizarResumen() {
   }
 }
 
-// 12. Listeners de eventos
+// 12. Gestión del tema (claro / oscuro)
+function aplicarTema(tema) {
+  const cuerpo = document.body;
+  const esOscuro = tema === "oscuro";
+
+  cuerpo.classList.toggle("theme-dark", esOscuro);
+  if (themeToggle) {
+    themeToggle.setAttribute("aria-pressed", String(esOscuro));
+    themeToggle.setAttribute(
+      "aria-label",
+      esOscuro ? "Cambiar a tema claro" : "Cambiar a tema oscuro"
+    );
+  }
+}
+
+function inicializarTema() {
+  let tema = localStorage.getItem(CLAVE_TEMA);
+
+  if (!tema) {
+    tema = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "oscuro"
+      : "claro";
+  }
+
+  aplicarTema(tema);
+}
+
+function alternarTema() {
+  const esOscuro = document.body.classList.contains("theme-dark");
+  const nuevoTema = esOscuro ? "claro" : "oscuro";
+
+  aplicarTema(nuevoTema);
+  localStorage.setItem(CLAVE_TEMA, nuevoTema);
+}
+
+// 13. Listeners de eventos
 function registrarEventos() {
   if (loginForm) loginForm.addEventListener("submit", procesarLogin);
-  
+  if (themeToggle) themeToggle.addEventListener("click", alternarTema);
+
   // Eventos del Logout y Modal
   if (logoutButton) logoutButton.addEventListener("click", abrirModalLogout);
   if (cancelLogout) cancelLogout.addEventListener("click", cerrarModalLogout);
@@ -814,7 +853,7 @@ function registrarEventos() {
   }
 }
 
-// 13. Inicialización
+// 14. Inicialización
 function inicializarApp() {
   clientes = leerArregloDeLocalStorage(CLAVE_CLIENTES);
   productos = leerArregloDeLocalStorage(CLAVE_PRODUCTOS);
@@ -824,7 +863,7 @@ function inicializarApp() {
   renderizarProductos();
   renderizarProveedores();
   actualizarResumen();
-
+  inicializarTema();
   registrarEventos();
 }
 
