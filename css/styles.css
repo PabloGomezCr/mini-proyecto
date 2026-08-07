@@ -417,6 +417,20 @@ input:focus-visible {
   overflow-x: auto;
 }
 
+.table-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.table-panel-header h3 {
+  margin-bottom: 0;
+}
+
+
 table {
   width: 100%;
   min-width: 38rem;
