@@ -239,7 +239,7 @@ function cerrarModalLogout() {
 
 function procesarCerrarSesion() {
   cerrarModalLogout();
-
+}
 function cerrarMenuUsuario() {
   userDropdown.classList.add("is-hidden");
   avatarButton.setAttribute("aria-expanded", "false");
