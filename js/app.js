@@ -23,6 +23,8 @@ const secciones = document.querySelectorAll(".content-section");
 const totalClientes = document.querySelector("#totalClientes");
 const totalProductos = document.querySelector("#totalProductos");
 const totalProveedores = document.querySelector("#totalProveedores");
+const valorInventario = document.querySelector("#valorInventario");
+const productoMasCaro = document.querySelector("#productoMasCaro");
 
 const clienteForm = document.querySelector("#clienteForm");
 const clienteNombre = document.querySelector("#clienteNombre");
@@ -37,6 +39,7 @@ const clienteSubmit = document.querySelector("#clienteSubmit");
 const clienteCancel = document.querySelector("#clienteCancel");
 const clientesTableBody = document.querySelector("#clientesTableBody");
 const clientesEmpty = document.querySelector("#clientesEmpty");
+const clienteExportar = document.querySelector("#clienteExportar");
 
 const productoForm = document.querySelector("#productoForm");
 const productoNombre = document.querySelector("#productoNombre");
@@ -53,6 +56,7 @@ const productoSubmit = document.querySelector("#productoSubmit");
 const productoCancel = document.querySelector("#productoCancel");
 const productosTableBody = document.querySelector("#productosTableBody");
 const productosEmpty = document.querySelector("#productosEmpty");
+const productoExportar = document.querySelector("#productoExportar");
 
 const proveedorForm = document.querySelector("#proveedorForm");
 const proveedorEmpresa = document.querySelector("#proveedorEmpresa");
@@ -69,6 +73,7 @@ const proveedorSubmit = document.querySelector("#proveedorSubmit");
 const proveedorCancel = document.querySelector("#proveedorCancel");
 const proveedoresTableBody = document.querySelector("#proveedoresTableBody");
 const proveedoresEmpty = document.querySelector("#proveedoresEmpty");
+const proveedorExportar = document.querySelector("#proveedorExportar");
 
 // 3. Estado de la aplicación
 const CLAVE_CLIENTES = "sistema_clientes";
@@ -135,6 +140,18 @@ function establecerError(input, elementoError, mensaje) {
   input.setAttribute("aria-invalid", mensaje ? "true" : "false");
 }
 
+function formatearFecha(fechaISO) {
+  if (!fechaISO) {
+    return "—";
+  }
+
+  return new Date(fechaISO).toLocaleDateString("es-CR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+}
+
 // 5. Funciones del login
 function limpiarErroresLogin() {
   establecerError(loginUsuario, loginUsuarioError, "");
@@ -179,6 +196,7 @@ function procesarLogin(evento) {
   mostrarSeccion("inicio");
   loginForm.reset();
 }
+
 function cerrarSesion() {
   dashboardView.classList.add("is-hidden");
   loginView.classList.remove("is-hidden");
@@ -189,7 +207,6 @@ function cerrarSesion() {
 
   loginUsuario.focus();
 }
-
 
 // 6. Navegación del dashboard
 function mostrarSeccion(nombreSeccion) {
@@ -260,7 +277,8 @@ function guardarCliente(evento) {
       id: generarId(),
       nombre: resultado.nombre,
       correo: resultado.correo,
-      telefono: resultado.telefono
+      telefono: resultado.telefono,
+      fechaCreacion: new Date().toISOString()
     });
     mostrarMensaje(clienteMessage, "Cliente registrado correctamente.", "success");
   } else {
@@ -330,6 +348,7 @@ function renderizarClientes() {
         <td>${escaparHTML(cliente.nombre)}</td>
         <td>${escaparHTML(cliente.correo)}</td>
         <td>${escaparHTML(cliente.telefono)}</td>
+        <td>${formatearFecha(cliente.fechaCreacion)}</td>
         <td>
           <div class="table-actions">
             <button class="button button--secondary button--small" type="button" data-action="editar" data-id="${cliente.id}">Editar</button>
@@ -341,6 +360,22 @@ function renderizarClientes() {
     .join("");
 
   clientesEmpty.classList.toggle("is-hidden", clientes.length > 0);
+}
+
+function exportarClientesCSV() {
+  if (clientes.length === 0) {
+    mostrarMensaje(clienteMessage, "No hay clientes para exportar.", "error");
+    return;
+  }
+
+  const csv = convertirACSV(clientes, [
+    { clave: "nombre", etiqueta: "Nombre" },
+    { clave: "correo", etiqueta: "Correo" },
+    { clave: "telefono", etiqueta: "Teléfono" },
+    { clave: "fechaCreacion", etiqueta: "Fecha de registro" }
+  ]);
+
+  descargarCSV("clientes.csv", csv);
 }
 
 // 8. CRUD de productos
@@ -407,7 +442,8 @@ function guardarProducto(evento) {
       nombre: resultado.nombre,
       categoria: resultado.categoria,
       precio: resultado.precio,
-      cantidad: resultado.cantidad
+      cantidad: resultado.cantidad,
+      fechaCreacion: new Date().toISOString()
     });
     mostrarMensaje(productoMessage, "Producto registrado correctamente.", "success");
   } else {
@@ -487,6 +523,7 @@ function renderizarProductos() {
         <td>${escaparHTML(producto.categoria)}</td>
         <td>${formatearColones(producto.precio)}</td>
         <td>${escaparHTML(producto.cantidad)}</td>
+        <td>${formatearFecha(producto.fechaCreacion)}</td>
         <td>
           <div class="table-actions">
             <button class="button button--secondary button--small" type="button" data-action="editar" data-id="${producto.id}">Editar</button>
@@ -498,6 +535,23 @@ function renderizarProductos() {
     .join("");
 
   productosEmpty.classList.toggle("is-hidden", productos.length > 0);
+}
+
+function exportarProductosCSV() {
+  if (productos.length === 0) {
+    mostrarMensaje(productoMessage, "No hay productos para exportar.", "error");
+    return;
+  }
+
+  const csv = convertirACSV(productos, [
+    { clave: "nombre", etiqueta: "Nombre" },
+    { clave: "categoria", etiqueta: "Categoría" },
+    { clave: "precio", etiqueta: "Precio" },
+    { clave: "cantidad", etiqueta: "Cantidad" },
+    { clave: "fechaCreacion", etiqueta: "Fecha de registro" }
+  ]);
+
+  descargarCSV("productos.csv", csv);
 }
 
 // 9. CRUD de proveedores
@@ -567,7 +621,8 @@ function guardarProveedor(evento) {
       empresa: resultado.empresa,
       contacto: resultado.contacto,
       correo: resultado.correo,
-      telefono: resultado.telefono
+      telefono: resultado.telefono,
+      fechaCreacion: new Date().toISOString()
     });
     mostrarMensaje(proveedorMessage, "Proveedor registrado correctamente.", "success");
   } else {
@@ -640,6 +695,7 @@ function renderizarProveedores() {
         <td>${escaparHTML(proveedor.contacto)}</td>
         <td>${escaparHTML(proveedor.correo)}</td>
         <td>${escaparHTML(proveedor.telefono)}</td>
+        <td>${formatearFecha(proveedor.fechaCreacion)}</td>
         <td>
           <div class="table-actions">
             <button class="button button--secondary button--small" type="button" data-action="editar" data-id="${proveedor.id}">Editar</button>
@@ -653,14 +709,90 @@ function renderizarProveedores() {
   proveedoresEmpty.classList.toggle("is-hidden", proveedores.length > 0);
 }
 
+function exportarProveedoresCSV() {
+  if (proveedores.length === 0) {
+    mostrarMensaje(proveedorMessage, "No hay proveedores para exportar.", "error");
+    return;
+  }
+
+  const csv = convertirACSV(proveedores, [
+    { clave: "empresa", etiqueta: "Empresa" },
+    { clave: "contacto", etiqueta: "Contacto" },
+    { clave: "correo", etiqueta: "Correo" },
+    { clave: "telefono", etiqueta: "Teléfono" },
+    { clave: "fechaCreacion", etiqueta: "Fecha de registro" }
+  ]);
+
+  descargarCSV("proveedores.csv", csv);
+}
+
 // 10. Tarjetas de resumen
+function calcularValorInventario() {
+  return productos.reduce(
+    (total, producto) => total + producto.precio * producto.cantidad,
+    0
+  );
+}
+
+function obtenerProductoMasCaro() {
+  if (productos.length === 0) {
+    return null;
+  }
+
+  return productos.reduce((masCaro, actual) =>
+    actual.precio > masCaro.precio ? actual : masCaro
+  );
+}
+
 function actualizarResumen() {
   totalClientes.textContent = clientes.length;
   totalProductos.textContent = productos.length;
   totalProveedores.textContent = proveedores.length;
+
+  valorInventario.textContent = formatearColones(calcularValorInventario());
+
+  const masCaro = obtenerProductoMasCaro();
+  productoMasCaro.textContent = masCaro
+    ? `${masCaro.nombre} (${formatearColones(masCaro.precio)})`
+    : "—";
 }
 
-// 11. Eventos
+// 11. Exportación a CSV (utilidades genéricas)
+function convertirACSV(datos, columnas) {
+  const encabezado = columnas.map((columna) => columna.etiqueta).join(",");
+
+  const filas = datos.map((item) =>
+    columnas
+      .map((columna) => {
+        const valor =
+          columna.clave === "fechaCreacion"
+            ? formatearFecha(item[columna.clave])
+            : item[columna.clave] ?? "";
+        const texto = String(valor).replaceAll('"', '""');
+        return `"${texto}"`;
+      })
+      .join(",")
+  );
+
+  return [encabezado, ...filas].join("\n");
+}
+
+function descargarCSV(nombreArchivo, contenidoCSV) {
+  const bom = "\uFEFF";
+  const blob = new Blob([bom + contenidoCSV], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = nombreArchivo;
+  document.body.appendChild(enlace);
+  enlace.click();
+  document.body.removeChild(enlace);
+
+  URL.revokeObjectURL(url);
+}
+
+// 12. Eventos
 function procesarAccionTabla(evento, tipoRegistro) {
   const boton = evento.target.closest("button[data-action]");
 
@@ -687,7 +819,7 @@ function procesarAccionTabla(evento, tipoRegistro) {
 function registrarEventos() {
   loginForm.addEventListener("submit", procesarLogin);
   logoutButton.addEventListener("click", cerrarSesion);
-  
+
   botonesNavegacion.forEach((boton) => {
     boton.addEventListener("click", () => mostrarSeccion(boton.dataset.section));
   });
@@ -698,6 +830,7 @@ function registrarEventos() {
     mostrarMensaje(clienteMessage, "Edición cancelada.", "");
   });
   clientesTableBody.addEventListener("click", (evento) => procesarAccionTabla(evento, "cliente"));
+  clienteExportar.addEventListener("click", exportarClientesCSV);
 
   productoForm.addEventListener("submit", guardarProducto);
   productoCancel.addEventListener("click", () => {
@@ -705,6 +838,7 @@ function registrarEventos() {
     mostrarMensaje(productoMessage, "Edición cancelada.", "");
   });
   productosTableBody.addEventListener("click", (evento) => procesarAccionTabla(evento, "producto"));
+  productoExportar.addEventListener("click", exportarProductosCSV);
 
   proveedorForm.addEventListener("submit", guardarProveedor);
   proveedorCancel.addEventListener("click", () => {
@@ -712,9 +846,10 @@ function registrarEventos() {
     mostrarMensaje(proveedorMessage, "Edición cancelada.", "");
   });
   proveedoresTableBody.addEventListener("click", (evento) => procesarAccionTabla(evento, "proveedor"));
+  proveedorExportar.addEventListener("click", exportarProveedoresCSV);
 }
 
-// 12. Inicialización de la aplicación
+// 13. Inicialización de la aplicación
 function inicializarAplicacion() {
   clientes = leerArregloDeLocalStorage(CLAVE_CLIENTES);
   productos = leerArregloDeLocalStorage(CLAVE_PRODUCTOS);
