@@ -122,13 +122,44 @@
             Usuario: <strong>Administrador</strong>
           </p>
 
-          <button
-            id="logoutButton"
-            class="button button--logout"
-            type="button"
-          >
-            Cerrar sesión
-          </button>
+          <div class="user-menu" id="userMenu">
+            <button
+              id="avatarButton"
+              class="user-menu__avatar"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="userDropdown"
+              title="Menú del usuario"
+            >
+              A
+            </button>
+
+            <div
+              id="userDropdown"
+              class="user-menu__dropdown is-hidden"
+              role="menu"
+              aria-labelledby="avatarButton"
+            >
+              <button
+                id="profileOption"
+                class="user-menu__item"
+                type="button"
+                role="menuitem"
+              >
+                Perfil
+              </button>
+              <div class="user-menu__divider" role="separator"></div>
+              <button
+                id="logoutButton"
+                class="user-menu__item user-menu__item--danger"
+                type="button"
+                role="menuitem"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -393,5 +424,42 @@
   </div>
 </div>
 
+  <!-- Modal de perfil del administrador -->
+  <div
+    id="profileModal"
+    class="modal is-hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profileModalTitle"
+    aria-hidden="true"
+  >
+    <div class="modal__card">
+      <div class="modal__header">
+        <h2 id="profileModalTitle" class="modal__title">Perfil del administrador</h2>
+        <button
+          id="profileClose"
+          class="modal__close"
+          type="button"
+          aria-label="Cerrar perfil"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <div class="profile-avatar" aria-hidden="true">A</div>
+        <dl class="profile-data">
+          <div class="profile-data__row">
+            <dt>Usuario</dt>
+            <dd>admin</dd>
+          </div>
+          <div class="profile-data__row">
+            <dt>Rol</dt>
+            <dd>Administrador</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
