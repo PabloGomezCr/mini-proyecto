@@ -16,6 +16,8 @@ const loginUsuarioError = document.querySelector("#loginUsuarioError");
 const loginContrasenaError = document.querySelector("#loginContrasenaError");
 const loginMessage = document.querySelector("#loginMessage");
 const logoutButton = document.querySelector("#logoutButton");
+const themeToggle = document.querySelector("#themeToggle");
+const CLAVE_TEMA = "sistema_tema";
 
 const botonesNavegacion = document.querySelectorAll("[data-section]");
 const secciones = document.querySelectorAll(".content-section");
@@ -684,9 +686,43 @@ function procesarAccionTabla(evento, tipoRegistro) {
   }
 }
 
+// 11. Gestión del tema (claro / oscuro)
+function aplicarTema(tema) {
+  const cuerpo = document.body;
+  const esOscuro = tema === "oscuro";
+
+  cuerpo.classList.toggle("theme-dark", esOscuro);
+  themeToggle.setAttribute("aria-pressed", String(esOscuro));
+  themeToggle.setAttribute(
+    "aria-label",
+    esOscuro ? "Cambiar a tema claro" : "Cambiar a tema oscuro"
+  );
+}
+
+function inicializarTema() {
+  let tema = localStorage.getItem(CLAVE_TEMA);
+
+  if (!tema) {
+    tema = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "oscuro"
+      : "claro";
+  }
+
+  aplicarTema(tema);
+}
+
+function alternarTema() {
+  const esOscuro = document.body.classList.contains("theme-dark");
+  const nuevoTema = esOscuro ? "claro" : "oscuro";
+
+  aplicarTema(nuevoTema);
+  localStorage.setItem(CLAVE_TEMA, nuevoTema);
+}
+
 function registrarEventos() {
   loginForm.addEventListener("submit", procesarLogin);
   logoutButton.addEventListener("click", cerrarSesion);
+  themeToggle.addEventListener("click", alternarTema);
   
   botonesNavegacion.forEach((boton) => {
     boton.addEventListener("click", () => mostrarSeccion(boton.dataset.section));
@@ -724,6 +760,7 @@ function inicializarAplicacion() {
   renderizarProductos();
   renderizarProveedores();
   actualizarResumen();
+  inicializarTema();
   registrarEventos();
 }
 
