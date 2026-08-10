@@ -284,86 +284,86 @@ La documentación debe describir lo que realmente funciona y no afirmar evidenci
 
 ## Prompts importantes — Kevin Ortiz
 
-Esta sección registra los prompts más relevantes que utilicé durante el desarrollo del proyecto. Se seleccionaron tres prompts por ser los pilares del sistema: la definición del alcance, la autenticación del login y el patrón CRUD que se replicó en los demás módulos.
+En esta sección se documentan los prompts clave que utilicé para las funciones adicionales del proyecto: cambio de tema, avatar con menú desplegable y "remember me" en el inicio de sesión administrativo.
 
-### 11. Planificación del alcance
+### 11. Cambio de tema
 
 ### Objetivo
 
-Definir qué funciones debe incluir el proyecto y cuáles deben quedar fuera, estableciendo el límite del trabajo desde el inicio.
+Implementar un selector de tema que permita alternar entre un modo claro y un modo oscuro en el dashboard.
 
 ### Prompt inicial
 
-> Ayúdame a planificar un sistema administrativo web con login, dashboard y módulos de clientes, productos y proveedores usando HTML, CSS, JavaScript y LocalStorage.
+> Añade un cambio de tema claro/oscuro en el sistema administrativo usando CSS y JavaScript.
 
 ### Posible problema de la respuesta
 
-La IA podría proponer backend, roles, reportes o funciones no solicitadas, ampliando el alcance más allá del enunciado.
+La IA podría proponer librerías externas, soluciones con demasiados estilos o un almacenamiento de tema inexistente.
 
 ### Prompt de mejora
 
-> Limita la planificación a login, dashboard, CRUD de clientes, productos y proveedores, LocalStorage y Git. No agregues backend, APIs, roles, reportes ni frameworks.
+> Implementa un cambio de tema claro/oscuro con CSS personalizado y JavaScript vanilla. Guarda la preferencia en LocalStorage para que el tema se conserve al recargar la página, sin usar librerías externas.
 
 ### Adaptación realizada por el equipo
 
-Revisé la propuesta y eliminé cualquier actividad que estuviera fuera del enunciado oficial, manteniendo únicamente lo solicitado.
+Verifiqué que el tema se aplicara al cargar la página y que el estado guardado en LocalStorage se recuperara correctamente.
 
 ### Aprendizaje obtenido
 
-Un prompt mejora cuando define claramente el alcance y las restricciones; este prompt fue clave porque guió todo el resto del desarrollo.
+Guardar la preferencia del usuario en LocalStorage mejora la experiencia; este prompt fue importante porque añadió personalización persistente al dashboard.
 
 ---
 
-### 12. Validación del login
+### 12. Avatar + dropdown menu
 
 ### Objetivo
 
-Validar usuario y contraseña sin recargar la página, controlando el acceso al dashboard.
+Mostrar el avatar del usuario con un menú desplegable para acceder a opciones administrativas.
 
 ### Prompt inicial
 
-> Crea un login con JavaScript.
+> Agrega un avatar con un dropdown menu en la cabecera del dashboard.
 
 ### Posible problema de la respuesta
 
-La respuesta podría incluir backend, sesiones reales, registro o recuperación de contraseña, alejándose del propósito educativo.
+La respuesta podría incluir componentes externos, HTML complejo o acciones que no existieran en el proyecto.
 
 ### Prompt de mejora
 
-> Implementa un login educativo en JavaScript vanilla usando un objeto con usuario admin y contraseña Admin123. Valida campos vacíos y credenciales incorrectas, muestra mensajes en el DOM y no uses alert, backend, registro ni recuperación de contraseña.
+> Crea un avatar en la cabecera con un menú desplegable simple en JavaScript vanilla. Incluye opciones como perfil, configuración y cerrar sesión, y asegúrate de que el menú se abra y cierre correctamente.
 
 ### Adaptación realizada por el equipo
 
-Verifiqué que el dashboard estuviera oculto al inicio y que solo apareciera con credenciales correctas, mostrando los mensajes en el DOM.
+Confirmé que el desplegable se mostrara y ocultara al hacer clic, y que el avatar mantuviera la consistencia visual del diseño.
 
 ### Aprendizaje obtenido
 
-La autenticación del navegador sirve para practicar lógica, pero no debe confundirse con una solución segura de producción; este prompt fue importante porque definió el punto de entrada al sistema.
+Un menú desplegable bien integrado mejora la navegación del usuario; este prompt fue clave para darle al dashboard una experiencia más profesional.
 
 ---
 
-### 13. CRUD de clientes
+### 13. Remember me en el inicio de sesión administrativo
 
 ### Objetivo
 
-Registrar, consultar, editar y eliminar clientes, estableciendo el patrón que se replicaría en productos y proveedores.
+Agregar una función "remember me" que recuerde el usuario en el formulario de login administrativo.
 
 ### Prompt inicial
 
-> Crea un CRUD de clientes.
+> Implementa un checkbox "remember me" en el login que conserve el usuario.
 
 ### Posible problema de la respuesta
 
-La IA podría agregar dirección, identificación, búsqueda o paginación, complicando el módulo innecesariamente.
+La IA podría implementar almacenamiento inseguro de contraseñas, usar cookies innecesarias o extender la funcionalidad más allá del alcance.
 
 ### Prompt de mejora
 
-> Crea únicamente la lógica del CRUD de clientes con ID, nombre completo, correo y teléfono. Usa un arreglo, eventos del DOM, validaciones, edición del registro seleccionado, confirmación antes de eliminar y LocalStorage.
+> Agrega un checkbox "remember me" en el login administrativo y guarda solo el usuario en LocalStorage. Al volver a cargar la página, el campo de usuario debe recuperarse, pero no la contraseña.
 
 ### Adaptación realizada por el equipo
 
-Ajusté los selectores para que coincidieran con los elementos reales del HTML y comprobé la actualización de la tarjeta del dashboard.
+Verifiqué que el usuario se guardara correctamente y que el campo se rellenara automáticamente en la siguiente visita sin recuperar la contraseña.
 
 ### Aprendizaje obtenido
 
-Un CRUD necesita sincronizar el arreglo, LocalStorage, la tabla y los contadores; este prompt fue fundamental porque sirvió de base para los módulos de productos y proveedores.
+Recordar sólo el usuario protege mejor la seguridad y mejora la usabilidad; este prompt fue importante porque hizo el login más cómodo sin comprometer la autenticación.

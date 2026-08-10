@@ -44,7 +44,19 @@
           <small id="loginContrasenaError" class="field-error" aria-live="polite"></small>
         </div>
 
-       
+        <div class="form-field form-field--checkbox">
+          <label class="checkbox-field" for="loginRecordar">
+            <input
+              id="loginRecordar"
+              name="recordar"
+              type="checkbox"
+              autocomplete="remember-me"
+            >
+            Recordar contraseña
+          </label>
+        </div>
+
+        <p id="loginMessage" class="form-message" aria-live="polite"></p>
 
         <button class="button button--primary button--full" type="submit">
           Iniciar sesión
@@ -412,8 +424,6 @@
     </div>
   </div>
 
-<<<<<<< HEAD
-
   <dialog
     id="systemModal"
     class="system-modal"
@@ -470,7 +480,6 @@
     </div>
   </dialog>
 
-=======
 <!-- Modal de confirmación para cerrar sesión -->
 <div id="logoutModal" class="modal-overlay is-hidden">
   <div class="modal-card">
@@ -520,6 +529,5 @@
       </div>
     </div>
   </div>
->>>>>>> f5d497debff1c57a2a277f263ba5e4ee625f7543
 </body>
 </html>
