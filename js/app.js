@@ -14,8 +14,8 @@ const loginUsuario = document.querySelector("#loginUsuario");
 const loginContrasena = document.querySelector("#loginContrasena");
 const loginRecordar = document.querySelector("#loginRecordar");
 const loginUsuarioError = document.querySelector("#loginUsuarioError");
-const loginContrasenaError = document.querySelector("#loginContrasenaError");;
-
+const loginContrasenaError = document.querySelector("#loginContrasenaError");
+const loginMessage = document.querySelector("#loginMessage");
 const systemModal = document.querySelector("#systemModal");
 const modalIcon = document.querySelector("#modalIcon");
 const modalTitle = document.querySelector("#modalTitle");
@@ -361,7 +361,21 @@ function cerrarModalLogout() {
 
 function procesarCerrarSesion() {
   cerrarModalLogout();
+  cerrarSesion();
 }
+
+function restaurarSesion() {
+  const sesionActiva = localStorage.getItem(CLAVE_SESION_ACTIVA) === "true";
+
+  if (!sesionActiva) {
+    return;
+  }
+
+  loginView.classList.add("is-hidden");
+  dashboardView.classList.remove("is-hidden");
+  mostrarSeccion("inicio");
+}
+
 function cerrarMenuUsuario() {
   userDropdown.classList.add("is-hidden");
   avatarButton.setAttribute("aria-expanded", "false");
@@ -1178,6 +1192,7 @@ function inicializarApp() {
 
   inicializarTema();
   registrarEventos();
+  restaurarSesion();
 }
 
 document.addEventListener("DOMContentLoaded", inicializarApp);
