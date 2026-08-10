@@ -11,6 +11,8 @@
   --color-border: #d8e0e5;
   --color-error: #b42318;
   --color-success: #237a4b;
+  --color-danger-bg: #fff0ee;
+  --color-empty-bg: #f4f7f8;
   --shadow-soft: 0 0.75rem 2rem rgba(23, 51, 66, 0.1);
   --radius-small: 0.5rem;
   --radius-medium: 1rem;
@@ -30,6 +32,8 @@ body.theme-dark {
   --color-border: #2c3e48;
   --color-error: #f47171;
   --color-success: #5ec98a;
+  --color-danger-bg: #3a2222;
+  --color-empty-bg: #1c2731;
   --shadow-soft: 0 0.75rem 2rem rgba(0, 0, 0, 0.45);
 }
 
@@ -263,12 +267,13 @@ input:focus-visible {
 }
 
 .button--danger {
-  background: #fff0ee;
+  background: var(--color-danger-bg);
   color: var(--color-error);
 }
 
 .button--danger:hover {
-  background: #fbd8d4;
+  background: var(--color-error);
+  color: #ffffff;
 }
 
 .button--small {
@@ -802,8 +807,12 @@ td {
   margin: 1rem 0 0;
   padding: 0.8rem;
   border-radius: var(--radius-small);
+<<<<<<< HEAD
   border: 1px solid var(--color-border);
   background: var(--color-surface);
+=======
+  background: var(--color-empty-bg);
+>>>>>>> 12a0e478d6dc35ad03c16837411f9f705d872d95
   color: var(--color-text-soft);
   text-align: center;
 }
