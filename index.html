@@ -87,6 +87,28 @@
           </li>
         </ul>
       </nav>
+
+      <div class="theme-toggle">
+        <button id="themeToggle" class="theme-toggle__button" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro" title="Cambiar tema">
+          <span class="theme-toggle__track">
+            <span class="theme-toggle__thumb">
+              <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <line x1="12" y1="2.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21.5"/>
+                  <line x1="2.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21.5" y2="12"/>
+                  <line x1="5.2" y1="5.2" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.8" y2="18.8"/>
+                  <line x1="5.2" y1="18.8" x2="6.9" y2="17.1"/><line x1="17.1" y1="6.9" x2="18.8" y2="5.2"/>
+                </g>
+              </svg>
+              <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </span>
+          <span class="theme-toggle__label">Tema</span>
+        </button>
+      </div>
     </aside>
 
     <div class="dashboard__body">
@@ -95,19 +117,50 @@
           <p class="eyebrow">Panel de control</p>
           <h1>Sistema Administrativo Web</h1>
         </div>
-            <div class="topbar__actions">
-            <p class="topbar__user">
+        <div class="topbar__actions">
+          <p class="topbar__user">
             Usuario: <strong>Administrador</strong>
-            </p>
+          </p>
 
-  <button
-    id="logoutButton"
-    class="button button--logout"
-    type="button"
-  >
-    Cerrar sesión
-  </button>
-</div>
+          <div class="user-menu" id="userMenu">
+            <button
+              id="avatarButton"
+              class="user-menu__avatar"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="userDropdown"
+              title="Menú del usuario"
+            >
+              A
+            </button>
+
+            <div
+              id="userDropdown"
+              class="user-menu__dropdown is-hidden"
+              role="menu"
+              aria-labelledby="avatarButton"
+            >
+              <button
+                id="profileOption"
+                class="user-menu__item"
+                type="button"
+                role="menuitem"
+              >
+                Perfil
+              </button>
+              <div class="user-menu__divider" role="separator"></div>
+              <button
+                id="logoutButton"
+                class="user-menu__item user-menu__item--danger"
+                type="button"
+                role="menuitem"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
       </header>
 
       <main class="main-content">
@@ -132,6 +185,14 @@
             <article class="summary-card">
               <p>Total de proveedores</p>
               <strong id="totalProveedores">0</strong>
+            </article>
+            <article class="summary-card">
+              <p>Valor total del inventario</p>
+              <strong id="valorInventario">₡0.00</strong>
+            </article>
+            <article class="summary-card">
+              <p>Producto más caro</p>
+              <strong id="productoMasCaro">—</strong>
             </article>
           </div>
         </section>
@@ -177,7 +238,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Clientes registrados</h3>
+              <div class="table-panel-header">
+                <h3>Clientes registrados</h3>
+                <button id="clienteExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -185,6 +251,7 @@
                       <th scope="col">Nombre</th>
                       <th scope="col">Correo</th>
                       <th scope="col">Teléfono</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -243,7 +310,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Productos registrados</h3>
+              <div class="table-panel-header">
+                <h3>Productos registrados</h3>
+                <button id="productoExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -252,6 +324,7 @@
                       <th scope="col">Categoría</th>
                       <th scope="col">Precio</th>
                       <th scope="col">Cantidad</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -310,7 +383,12 @@
             </div>
 
             <div class="panel panel--table">
-              <h3>Proveedores registrados</h3>
+              <div class="table-panel-header">
+                <h3>Proveedores registrados</h3>
+                <button id="proveedorExportar" class="button button--secondary button--small" type="button">
+                  Descargar CSV
+                </button>
+              </div>
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -319,6 +397,7 @@
                       <th scope="col">Contacto</th>
                       <th scope="col">Correo</th>
                       <th scope="col">Teléfono</th>
+                      <th scope="col">Registrado</th>
                       <th scope="col">Acciones</th>
                     </tr>
                   </thead>
@@ -333,6 +412,7 @@
     </div>
   </div>
 
+<<<<<<< HEAD
 
   <dialog
     id="systemModal"
@@ -390,5 +470,56 @@
     </div>
   </dialog>
 
+=======
+<!-- Modal de confirmación para cerrar sesión -->
+<div id="logoutModal" class="modal-overlay is-hidden">
+  <div class="modal-card">
+    <h3>Cerrar sesión</h3>
+    <p>¿Estás seguro de que deseas salir del sistema?</p>
+    <div class="modal-actions">
+      <button type="button" id="cancelLogout" class="button button--secondary" type="button">Cancelar</button>
+      <button id="confirmLogout" class="button button--danger" type="button">Sí, cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+  <!-- Modal de perfil del administrador -->
+  <div
+    id="profileModal"
+    class="modal is-hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profileModalTitle"
+    aria-hidden="true"
+  >
+    <div class="modal__card">
+      <div class="modal__header">
+        <h2 id="profileModalTitle" class="modal__title">Perfil del administrador</h2>
+        <button
+          id="profileClose"
+          class="modal__close"
+          type="button"
+          aria-label="Cerrar perfil"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <div class="profile-avatar" aria-hidden="true">A</div>
+        <dl class="profile-data">
+          <div class="profile-data__row">
+            <dt>Usuario</dt>
+            <dd>admin</dd>
+          </div>
+          <div class="profile-data__row">
+            <dt>Rol</dt>
+            <dd>Administrador</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+>>>>>>> f5d497debff1c57a2a277f263ba5e4ee625f7543
 </body>
 </html>
