@@ -14,8 +14,15 @@ const loginUsuario = document.querySelector("#loginUsuario");
 const loginContrasena = document.querySelector("#loginContrasena");
 const loginRecordar = document.querySelector("#loginRecordar");
 const loginUsuarioError = document.querySelector("#loginUsuarioError");
-const loginContrasenaError = document.querySelector("#loginContrasenaError");
-const loginMessage = document.querySelector("#loginMessage");
+const loginContrasenaError = document.querySelector("#loginContrasenaError");;
+
+const systemModal = document.querySelector("#systemModal");
+const modalIcon = document.querySelector("#modalIcon");
+const modalTitle = document.querySelector("#modalTitle");
+const modalMessage = document.querySelector("#modalMessage");
+const modalCancel = document.querySelector("#modalCancel");
+const modalConfirm = document.querySelector("#modalConfirm");
+const modalClose = document.querySelector("#modalClose");
 const logoutButton = document.querySelector("#logoutButton");
 const avatarButton = document.querySelector("#avatarButton");
 const userDropdown = document.querySelector("#userDropdown");
@@ -45,7 +52,6 @@ const clienteTelefono = document.querySelector("#clienteTelefono");
 const clienteNombreError = document.querySelector("#clienteNombreError");
 const clienteCorreoError = document.querySelector("#clienteCorreoError");
 const clienteTelefonoError = document.querySelector("#clienteTelefonoError");
-const clienteMessage = document.querySelector("#clienteMessage");
 const clienteFormTitle = document.querySelector("#clienteFormTitle");
 const clienteSubmit = document.querySelector("#clienteSubmit");
 const clienteCancel = document.querySelector("#clienteCancel");
@@ -62,7 +68,6 @@ const productoNombreError = document.querySelector("#productoNombreError");
 const productoCategoriaError = document.querySelector("#productoCategoriaError");
 const productoPrecioError = document.querySelector("#productoPrecioError");
 const productoCantidadError = document.querySelector("#productoCantidadError");
-const productoMessage = document.querySelector("#productoMessage");
 const productoFormTitle = document.querySelector("#productoFormTitle");
 const productoSubmit = document.querySelector("#productoSubmit");
 const productoCancel = document.querySelector("#productoCancel");
@@ -79,7 +84,6 @@ const proveedorEmpresaError = document.querySelector("#proveedorEmpresaError");
 const proveedorContactoError = document.querySelector("#proveedorContactoError");
 const proveedorCorreoError = document.querySelector("#proveedorCorreoError");
 const proveedorTelefonoError = document.querySelector("#proveedorTelefonoError");
-const proveedorMessage = document.querySelector("#proveedorMessage");
 const proveedorFormTitle = document.querySelector("#proveedorFormTitle");
 const proveedorSubmit = document.querySelector("#proveedorSubmit");
 const proveedorCancel = document.querySelector("#proveedorCancel");
@@ -102,7 +106,14 @@ let clienteEnEdicion = null;
 let productoEnEdicion = null;
 let proveedorEnEdicion = null;
 
+
+let accionModalPendiente = null;
+let elementoFocoAnterior = null;
+
+// 4. Funciones de LocalStorage
+
 // 4. Funciones de LocalStorage y Utilidades
+
 function leerArregloDeLocalStorage(clave) {
   try {
     const contenido = localStorage.getItem(clave);
@@ -136,6 +147,38 @@ function esCorreoValido(correo) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
 }
 
+function obtenerIconoModal(tipo) {
+  const iconos = {
+    success: "✓",
+    error: "×",
+    warning: "!",
+    info: "i",
+    confirm: "!"
+  };
+
+  return iconos[tipo] || "i";
+}
+
+function mostrarModal(tipo, titulo, mensaje) {
+  elementoFocoAnterior = document.activeElement;
+
+  accionModalPendiente = null;
+
+  systemModal.dataset.type = tipo;
+
+  modalIcon.textContent = obtenerIconoModal(tipo);
+  modalTitle.textContent = titulo;
+  modalMessage.textContent = mensaje;
+
+  modalCancel.classList.add("is-hidden");
+  modalConfirm.classList.add("is-hidden");
+  modalClose.classList.remove("is-hidden");
+
+  modalClose.textContent = "Aceptar";
+
+  if (!systemModal.open) {
+    systemModal.showModal();
+  }}
 function mostrarMensaje(elemento, mensaje, tipo) {
   if (!elemento) return;
   elemento.textContent = mensaje;
@@ -143,6 +186,49 @@ function mostrarMensaje(elemento, mensaje, tipo) {
   if (tipo) {
     elemento.classList.add(tipo === "error" ? "is-error" : "is-success");
   }
+
+  modalClose.focus();
+}
+
+function mostrarConfirmacion(titulo, mensaje, accionConfirmada) {
+  elementoFocoAnterior = document.activeElement;
+  accionModalPendiente = accionConfirmada;
+
+  systemModal.dataset.type = "confirm";
+
+  modalIcon.textContent = obtenerIconoModal("confirm");
+  modalTitle.textContent = titulo;
+  modalMessage.textContent = mensaje;
+
+  modalClose.classList.add("is-hidden");
+  modalCancel.classList.remove("is-hidden");
+  modalConfirm.classList.remove("is-hidden");
+
+  modalCancel.textContent = "Cancelar";
+  modalConfirm.textContent = "Eliminar";
+
+  if (!systemModal.open) {
+    systemModal.showModal();
+  }
+
+  modalCancel.focus();
+}
+
+function cerrarModal() {
+  if (systemModal.open) {
+    systemModal.close();
+  }
+
+  accionModalPendiente = null;
+
+  if (
+    elementoFocoAnterior &&
+    typeof elementoFocoAnterior.focus === "function"
+  ) {
+    elementoFocoAnterior.focus();
+  }
+
+  elementoFocoAnterior = null;
 }
 
 function establecerError(input, elementoError, mensaje) {
@@ -191,7 +277,6 @@ function descargarCSV(nombreArchivo, contenidoCSV) {
 function limpiarErroresLogin() {
   establecerError(loginUsuario, loginUsuarioError, "");
   establecerError(loginContrasena, loginContrasenaError, "");
-  mostrarMensaje(loginMessage, "", "");
 }
 
 function cargarUsuarioRecordado() {
@@ -226,19 +311,29 @@ function procesarLogin(evento) {
     formularioValido = false;
   }
 
-  if (!formularioValido) {
-    mostrarMensaje(loginMessage, "Revisa los campos indicados.", "error");
-    return;
-  }
+if (!formularioValido) {
+  mostrarModal(
+    "error",
+    "Datos incompletos",
+    "Revisa los campos indicados."
+  );
+
+  return;
+}
 
   const credencialesCorrectas =
     usuarioIngresado === usuarioAdministrador.usuario &&
     contrasenaIngresada === usuarioAdministrador.contrasena;
 
-  if (!credencialesCorrectas) {
-    mostrarMensaje(loginMessage, "Usuario o contraseña incorrectos.", "error");
-    return;
-  }
+if (!credencialesCorrectas) {
+  mostrarModal(
+    "error",
+    "No fue posible iniciar sesión",
+    "Usuario o contraseña incorrectos."
+  );
+
+  return;
+}
 
   if (loginRecordar) {
     if (loginRecordar.checked) {
@@ -334,7 +429,7 @@ function validarCliente() {
   establecerError(clienteNombre, clienteNombreError, "");
   establecerError(clienteCorreo, clienteCorreoError, "");
   establecerError(clienteTelefono, clienteTelefonoError, "");
-  mostrarMensaje(clienteMessage, "", "");
+
 
   const nombre = clienteNombre.value.trim();
   const correo = clienteCorreo.value.trim();
@@ -366,10 +461,15 @@ function guardarCliente(evento) {
   evento.preventDefault();
   const resultado = validarCliente();
 
-  if (!resultado.valido) {
-    mostrarMensaje(clienteMessage, "Revisa los campos indicados.", "error");
-    return;
-  }
+if (!resultado.valido) {
+  mostrarModal(
+    "error",
+    "Datos incompletos",
+    "Revisa los campos indicados."
+  );
+
+  return;
+}
 
   if (clienteEnEdicion === null) {
     clientes.push({
@@ -379,7 +479,11 @@ function guardarCliente(evento) {
       telefono: resultado.telefono,
       fechaCreacion: new Date().toISOString()
     });
-    mostrarMensaje(clienteMessage, "Cliente registrado correctamente.", "success");
+mostrarModal(
+  "success",
+  "Cliente registrado",
+  "Cliente registrado correctamente."
+);
   } else {
     const indice = clientes.findIndex((cliente) => cliente.id === clienteEnEdicion);
     if (indice !== -1) {
@@ -398,7 +502,11 @@ function guardarCliente(evento) {
 
   if (clienteEnEdicion !== null) {
     limpiarFormularioCliente();
-    mostrarMensaje(clienteMessage, "Cliente actualizado correctamente.", "success");
+mostrarModal(
+  "success",
+  "Cliente actualizado",
+  "Cliente actualizado correctamente."
+);
   } else {
     clienteForm.reset();
   }
@@ -415,22 +523,36 @@ function iniciarEdicionCliente(id) {
   clienteFormTitle.textContent = "Editar cliente";
   clienteSubmit.textContent = "Guardar cambios";
   clienteCancel.classList.remove("is-hidden");
-  mostrarMensaje(clienteMessage, "", "");
   clienteNombre.focus();
 }
 
 function eliminarCliente(id) {
   const cliente = clientes.find((item) => item.id === id);
+
+  
   if (!cliente || !window.confirm(`¿Deseas eliminar a ${cliente.nombre}?`)) return;
 
-  clientes = clientes.filter((item) => item.id !== id);
-  guardarEnLocalStorage(CLAVE_CLIENTES, clientes);
-  renderizarClientes();
-  actualizarResumen();
+  mostrarConfirmacion(
+    "Eliminar cliente",
+    `¿Deseas eliminar a ${cliente.nombre}?`,
+    () => {
+      clientes = clientes.filter((item) => item.id !== id);
 
-  if (clienteEnEdicion === id) {
-    limpiarFormularioCliente();
-  }
+      guardarEnLocalStorage(CLAVE_CLIENTES, clientes);
+      renderizarClientes();
+      actualizarResumen();
+
+      if (clienteEnEdicion === id) {
+        limpiarFormularioCliente();
+      }
+
+      mostrarModal(
+        "success",
+        "Cliente eliminado",
+        "El cliente fue eliminado correctamente."
+      );
+    }
+  );
 }
 
 function renderizarClientes() {
@@ -489,7 +611,7 @@ function validarProducto() {
   establecerError(productoCategoria, productoCategoriaError, "");
   establecerError(productoPrecio, productoPrecioError, "");
   establecerError(productoCantidad, productoCantidadError, "");
-  mostrarMensaje(productoMessage, "", "");
+
 
   const nombre = productoNombre.value.trim();
   const categoria = productoCategoria.value.trim();
@@ -525,7 +647,11 @@ function guardarProducto(evento) {
   const resultado = validarProducto();
 
   if (!resultado.valido) {
-    mostrarMensaje(productoMessage, "Revisa los campos indicados.", "error");
+    mostrarModal(
+      "error",
+      "Datos incompletos",
+      "Revisa los campos indicados."
+    );
     return;
   }
 
@@ -538,7 +664,11 @@ function guardarProducto(evento) {
       cantidad: resultado.cantidad,
       fechaCreacion: new Date().toISOString()
     });
-    mostrarMensaje(productoMessage, "Producto registrado correctamente.", "success");
+    mostrarModal(
+      "success",
+      "Producto registrado",
+      "Producto registrado correctamente."
+    );
   } else {
     const indice = productos.findIndex((p) => p.id === productoEnEdicion);
     if (indice !== -1) {
@@ -558,7 +688,11 @@ function guardarProducto(evento) {
 
   if (productoEnEdicion !== null) {
     limpiarFormularioProducto();
-    mostrarMensaje(productoMessage, "Producto actualizado correctamente.", "success");
+mostrarModal(
+  "success",
+  "Producto actualizado",
+  "Producto actualizado correctamente."
+);
   } else {
     productoForm.reset();
   }
@@ -576,7 +710,6 @@ function iniciarEdicionProducto(id) {
   productoFormTitle.textContent = "Editar producto";
   productoSubmit.textContent = "Guardar cambios";
   productoCancel.classList.remove("is-hidden");
-  mostrarMensaje(productoMessage, "", "");
   productoNombre.focus();
 }
 
@@ -584,14 +717,33 @@ function eliminarProducto(id) {
   const producto = productos.find((p) => p.id === id);
   if (!producto || !window.confirm(`¿Deseas eliminar ${producto.nombre}?`)) return;
 
-  productos = productos.filter((p) => p.id !== id);
-  guardarEnLocalStorage(CLAVE_PRODUCTOS, productos);
-  renderizarProductos();
-  actualizarResumen();
 
-  if (productoEnEdicion === id) {
-    limpiarFormularioProducto();
+  if (!producto) {
+    return;
   }
+
+  mostrarConfirmacion(
+    "Eliminar producto",
+    `¿Deseas eliminar el producto ${producto.nombre}?`,
+    () => {
+      productos = productos.filter((item) => item.id !== id);
+
+
+      guardarEnLocalStorage(CLAVE_PRODUCTOS, productos);
+      renderizarProductos();
+      actualizarResumen();
+
+      if (productoEnEdicion === id) {
+        limpiarFormularioProducto();
+      }
+
+      mostrarModal(
+        "success",
+        "Producto eliminado",
+        "El producto fue eliminado correctamente."
+      );
+    }
+  );
 }
 
 function renderizarProductos() {
@@ -652,7 +804,7 @@ function validarProveedor() {
   establecerError(proveedorContacto, proveedorContactoError, "");
   establecerError(proveedorCorreo, proveedorCorreoError, "");
   establecerError(proveedorTelefono, proveedorTelefonoError, "");
-  mostrarMensaje(proveedorMessage, "", "");
+
 
   const empresa = proveedorEmpresa.value.trim();
   const contacto = proveedorContacto.value.trim();
@@ -691,7 +843,11 @@ function guardarProveedor(evento) {
   const resultado = validarProveedor();
 
   if (!resultado.valido) {
-    mostrarMensaje(proveedorMessage, "Revisa los campos indicados.", "error");
+mostrarModal(
+  "error",
+  "Datos incompletos",
+  "Revisa los campos indicados."
+);
     return;
   }
 
@@ -704,7 +860,11 @@ function guardarProveedor(evento) {
       telefono: resultado.telefono,
       fechaCreacion: new Date().toISOString()
     });
-    mostrarMensaje(proveedorMessage, "Proveedor registrado correctamente.", "success");
+        mostrarModal(
+  "success",
+  "Proveedor registrado",
+  "Proveedor registrado correctamente."
+);
   } else {
     const indice = proveedores.findIndex((p) => p.id === proveedorEnEdicion);
     if (indice !== -1) {
@@ -724,7 +884,11 @@ function guardarProveedor(evento) {
 
   if (proveedorEnEdicion !== null) {
     limpiarFormularioProveedor();
-    mostrarMensaje(proveedorMessage, "Proveedor actualizado correctamente.", "success");
+mostrarModal(
+  "success",
+  "Proveedor actualizado",
+  "Proveedor actualizado correctamente."
+);
   } else {
     proveedorForm.reset();
   }
@@ -742,7 +906,6 @@ function iniciarEdicionProveedor(id) {
   proveedorFormTitle.textContent = "Editar proveedor";
   proveedorSubmit.textContent = "Guardar cambios";
   proveedorCancel.classList.remove("is-hidden");
-  mostrarMensaje(proveedorMessage, "", "");
   proveedorEmpresa.focus();
 }
 
@@ -750,14 +913,33 @@ function eliminarProveedor(id) {
   const proveedor = proveedores.find((p) => p.id === id);
   if (!proveedor || !window.confirm(`¿Deseas eliminar a ${proveedor.empresa}?`)) return;
 
-  proveedores = proveedores.filter((p) => p.id !== id);
-  guardarEnLocalStorage(CLAVE_PROVEEDORES, proveedores);
-  renderizarProveedores();
-  actualizarResumen();
 
-  if (proveedorEnEdicion === id) {
-    limpiarFormularioProveedor();
+  if (!proveedor) {
+    return;
   }
+
+  mostrarConfirmacion(
+    "Eliminar proveedor",
+    `¿Deseas eliminar al proveedor ${proveedor.empresa}?`,
+    () => {
+      proveedores = proveedores.filter((item) => item.id !== id);
+
+
+      guardarEnLocalStorage(CLAVE_PROVEEDORES, proveedores);
+      renderizarProveedores();
+      actualizarResumen();
+
+      if (proveedorEnEdicion === id) {
+        limpiarFormularioProveedor();
+      }
+
+      mostrarModal(
+        "success",
+        "Proveedor eliminado",
+        "El proveedor fue eliminado correctamente."
+      );
+    }
+  );
 }
 
 function renderizarProveedores() {
@@ -896,50 +1078,83 @@ function registrarEventos() {
   });
   themeToggle.addEventListener("click", alternarTema);
   
+  modalClose.addEventListener("click", () => {
+    cerrarModal();
+  });
+
+  modalCancel.addEventListener("click", () => {
+    cerrarModal();
+  });
+
+  modalConfirm.addEventListener("click", () => {
+    const accion = accionModalPendiente;
+
+    cerrarModal();
+
+    if (typeof accion === "function") {
+      accion();
+    }
+  });
+
+  systemModal.addEventListener("cancel", (evento) => {
+    evento.preventDefault();
+    cerrarModal();
+  });
+
   botonesNavegacion.forEach((boton) => {
     boton.addEventListener("click", () => {
       mostrarSeccion(boton.dataset.section);
     });
   });
 
-  if (clienteForm) clienteForm.addEventListener("submit", guardarCliente);
-  if (clienteCancel) clienteCancel.addEventListener("click", limpiarFormularioCliente);
-  if (clienteExportar) clienteExportar.addEventListener("click", exportarClientesCSV);
-  if (clientesTableBody) {
-    clientesTableBody.addEventListener("click", (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      const id = Number(btn.dataset.id);
-      if (btn.dataset.action === "editar") iniciarEdicionCliente(id);
-      if (btn.dataset.action === "eliminar") eliminarCliente(id);
-    });
-  }
+  clienteForm.addEventListener("submit", guardarCliente);
 
-  if (productoForm) productoForm.addEventListener("submit", guardarProducto);
-  if (productoCancel) productoCancel.addEventListener("click", limpiarFormularioProducto);
-  if (productoExportar) productoExportar.addEventListener("click", exportarProductosCSV);
-  if (productosTableBody) {
-    productosTableBody.addEventListener("click", (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      const id = Number(btn.dataset.id);
-      if (btn.dataset.action === "editar") iniciarEdicionProducto(id);
-      if (btn.dataset.action === "eliminar") eliminarProducto(id);
-    });
-  }
+  clienteCancel.addEventListener("click", () => {
+    limpiarFormularioCliente();
 
-  if (proveedorForm) proveedorForm.addEventListener("submit", guardarProveedor);
-  if (proveedorCancel) proveedorCancel.addEventListener("click", limpiarFormularioProveedor);
-  if (proveedorExportar) proveedorExportar.addEventListener("click", exportarProveedoresCSV);
-  if (proveedoresTableBody) {
-    proveedoresTableBody.addEventListener("click", (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      const id = Number(btn.dataset.id);
-      if (btn.dataset.action === "editar") iniciarEdicionProveedor(id);
-      if (btn.dataset.action === "eliminar") eliminarProveedor(id);
-    });
-  }
+    mostrarModal(
+      "info",
+      "Edición cancelada",
+      "La edición del cliente fue cancelada."
+    );
+  });
+
+  clientesTableBody.addEventListener("click", (evento) => {
+    procesarAccionTabla(evento, "cliente");
+  });
+
+  productoForm.addEventListener("submit", guardarProducto);
+
+  productoCancel.addEventListener("click", () => {
+    limpiarFormularioProducto();
+
+    mostrarModal(
+      "info",
+      "Edición cancelada",
+      "La edición del producto fue cancelada."
+    );
+  });
+
+  productosTableBody.addEventListener("click", (evento) => {
+    procesarAccionTabla(evento, "producto");
+  });
+
+  proveedorForm.addEventListener("submit", guardarProveedor);
+
+  proveedorCancel.addEventListener("click", () => {
+    limpiarFormularioProveedor();
+
+    mostrarModal(
+      "info",
+      "Edición cancelada",
+      "La edición del proveedor fue cancelada."
+    );
+  });
+
+  proveedoresTableBody.addEventListener("click", (evento) => {
+    procesarAccionTabla(evento, "proveedor");
+  });
+
 }
 
 // 14. Inicialización

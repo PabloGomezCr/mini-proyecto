@@ -198,20 +198,7 @@ input:focus-visible {
   font-size: 0.82rem;
 }
 
-.form-message {
-  min-height: 1.4rem;
-  margin-bottom: 0;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
 
-.form-message.is-error {
-  color: var(--color-error);
-}
-
-.form-message.is-success {
-  color: var(--color-success);
-}
 
 .form-actions {
   display: flex;
@@ -268,6 +255,139 @@ input:focus-visible {
 
 .button--full {
   width: 100%;
+}
+
+/* ==============================
+   Modal de notificaciones
+   ============================== */
+
+.system-modal {
+  width: min(calc(100% - 2rem), 30rem);
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  box-shadow:
+    0 1.5rem 4rem rgba(20, 45, 58, 0.25),
+    var(--shadow-soft);
+}
+
+.system-modal::backdrop {
+  background: rgba(20, 45, 58, 0.68);
+}
+
+.system-modal[open] {
+  animation: modalEntrada 220ms ease;
+}
+
+.system-modal__content {
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+
+  padding: clamp(1.5rem, 5vw, 2rem);
+
+  text-align: center;
+}
+
+.system-modal__icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+
+  place-items: center;
+
+  border: 0.18rem solid currentColor;
+  border-radius: 50%;
+
+  color: var(--color-primary);
+
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.system-modal__text {
+  width: 100%;
+}
+
+.system-modal__text h2 {
+  margin-bottom: 0.65rem;
+  color: var(--color-text);
+  font-size: 1.4rem;
+}
+
+.system-modal__text p {
+  max-width: 24rem;
+  margin: 0 auto;
+  color: var(--color-text-soft);
+}
+
+.system-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+
+  width: 100%;
+}
+
+/* Estado de éxito */
+
+.system-modal[data-type="success"] .system-modal__icon {
+  color: var(--color-success);
+}
+
+/* Estado de error */
+
+.system-modal[data-type="error"] .system-modal__icon {
+  color: var(--color-error);
+}
+
+/* Estado informativo */
+
+.system-modal[data-type="info"] .system-modal__icon {
+  color: var(--color-primary);
+}
+
+/* Advertencia / confirmación */
+
+.system-modal[data-type="warning"] .system-modal__icon,
+.system-modal[data-type="confirm"] .system-modal__icon {
+  color: var(--color-accent);
+}
+
+/* Botón destructivo dentro del modal */
+
+.system-modal #modalConfirm {
+  border-color: var(--color-error);
+  background: var(--color-error);
+  color: #ffffff;
+}
+
+.system-modal #modalConfirm:hover {
+  filter: brightness(0.92);
+}
+
+/* Animación */
+
+@keyframes modalEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .dashboard {
@@ -731,6 +851,17 @@ td {
   .form-actions .button {
     width: 100%;
   }
+  .system-modal {
+  width: calc(100% - 2rem);
+}
+
+.system-modal__actions {
+  flex-direction: column;
+}
+
+.system-modal__actions .button {
+  width: 100%;
+}
 }
 
 .theme-toggle {
@@ -825,6 +956,8 @@ body.theme-dark .theme-toggle__icon--moon {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
