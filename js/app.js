@@ -12,6 +12,7 @@ const dashboardView = document.querySelector("#dashboardView");
 const loginForm = document.querySelector("#loginForm");
 const loginUsuario = document.querySelector("#loginUsuario");
 const loginContrasena = document.querySelector("#loginContrasena");
+const loginRecordar = document.querySelector("#loginRecordar");
 const loginUsuarioError = document.querySelector("#loginUsuarioError");
 const loginContrasenaError = document.querySelector("#loginContrasenaError");
 const loginMessage = document.querySelector("#loginMessage");
@@ -90,6 +91,8 @@ const proveedorExportar = document.querySelector("#proveedorExportar");
 const CLAVE_CLIENTES = "sistema_clientes";
 const CLAVE_PRODUCTOS = "sistema_productos";
 const CLAVE_PROVEEDORES = "sistema_proveedores";
+const CLAVE_USUARIO_RECORDADO = "sistema_usuario_recordado";
+const CLAVE_SESION_ACTIVA = "sistema_sesion_activa";
 
 let clientes = [];
 let productos = [];
@@ -191,6 +194,20 @@ function limpiarErroresLogin() {
   mostrarMensaje(loginMessage, "", "");
 }
 
+function cargarUsuarioRecordado() {
+  if (!loginUsuario || !loginRecordar) return;
+
+  const usuarioGuardado = localStorage.getItem(CLAVE_USUARIO_RECORDADO);
+  loginUsuario.value = usuarioGuardado || "";
+  loginRecordar.checked = Boolean(usuarioGuardado);
+
+  if (usuarioGuardado) {
+    loginContrasena.focus();
+  } else {
+    loginUsuario.focus();
+  }
+}
+
 function procesarLogin(evento) {
   evento.preventDefault();
   limpiarErroresLogin();
@@ -221,6 +238,16 @@ function procesarLogin(evento) {
   if (!credencialesCorrectas) {
     mostrarMensaje(loginMessage, "Usuario o contraseña incorrectos.", "error");
     return;
+  }
+
+  if (loginRecordar) {
+    if (loginRecordar.checked) {
+      localStorage.setItem(CLAVE_USUARIO_RECORDADO, usuarioIngresado);
+      localStorage.setItem(CLAVE_SESION_ACTIVA, "true");
+    } else {
+      localStorage.removeItem(CLAVE_USUARIO_RECORDADO);
+      localStorage.removeItem(CLAVE_SESION_ACTIVA);
+    }
   }
 
   loginView.classList.add("is-hidden");
@@ -269,14 +296,15 @@ function cerrarPerfil() {
 }
 
 function cerrarSesion() {
+  localStorage.removeItem(CLAVE_SESION_ACTIVA);
+
   dashboardView.classList.add("is-hidden");
   loginView.classList.remove("is-hidden");
 
   loginForm.reset();
   limpiarErroresLogin();
   mostrarSeccion("inicio");
-
-  loginUsuario.focus();
+  cargarUsuarioRecordado();
 }
 
 // 7. Navegación
@@ -924,6 +952,15 @@ function inicializarApp() {
   renderizarProductos();
   renderizarProveedores();
   actualizarResumen();
+  cargarUsuarioRecordado();
+
+  const sesionActiva = localStorage.getItem(CLAVE_SESION_ACTIVA) === "true";
+  if (sesionActiva) {
+    loginView.classList.add("is-hidden");
+    dashboardView.classList.remove("is-hidden");
+    mostrarSeccion("inicio");
+  }
+
   inicializarTema();
   registrarEventos();
 }
